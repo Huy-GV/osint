@@ -1,10 +1,32 @@
 <main class="w-screen h-screen flex flex-row items-center  px-5 py-10 gap-1">
     <div class="w-8/12">
-        <img
-            [src]="image().url"
-            [alt]="'Image ' + image().id"
-            class="max-w-lg rounded shadow-lg mx-auto my-10"
-        />
+        @if (!showAnswer()) {
+            <img
+                [src]="image().url"
+                [alt]="'Image ' + image().id"
+                class="max-w-lg rounded shadow-lg mx-auto my-10"
+            />
+        }
+        @else if (answer() !== null) {
+            <google-map #googleMap (mapInitialized)="onMapReady($event)">
+                <map-marker
+                    [position]="{ lat: answer()?.latitude!, lng: answer()?.longitude! }"
+                    [options]="{ draggable: false }"
+                ></map-marker>
+                <map-marker
+                    [position]="{ lat: form.get('latitude')!.value!, lng: form.get('longitude')!.value! }"
+                    [options]="{ draggable: false }"
+                ></map-marker>
+                <map-polyline
+                    [path]="[
+                        { lat: answer()?.latitude!, lng: answer()?.longitude! },
+                        { lat: form.get('latitude')!.value!, lng: form.get('longitude')!.value! }
+                    ]"
+                    [options]="{ strokeColor: '#FF0000', strokeOpacity: 1.0, strokeWeight: 2 }"
+                ></map-polyline>
+            </google-map>
+        }
+
     </div>
     <div class="w-4/12">
         <div class="rounded shadow-md p-4 w-full">
