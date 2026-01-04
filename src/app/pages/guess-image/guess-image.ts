@@ -24,7 +24,6 @@ export class GuessImagePage {
     guessLongitude: number;
   } | null>(null);
 
-
   image = signal(this.imageService.getImageById(this.activatedRoute.snapshot.params['id'])!);
   form = new FormGroup({
     // TODO: need to review the bounds here

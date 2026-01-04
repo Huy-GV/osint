@@ -1,54 +1,70 @@
-<main class="w-screen h-screen flex flex-row items-center  px-5 py-10 gap-1">
-    <div class="w-8/12">
+<main class="w-screen h-screen flex flex-col lg:flex-row items-center p-4 lg:px-5 lg:py-10 gap-4">
+    <div class="w-full lg:w-8/12 h-3/5 lg:h-full flex items-center justify-center overflow-hidden">
         @if (!showAnswer()) {
             <img
                 [src]="image().url"
                 [alt]="'Image ' + image().id"
-                class="max-w-lg rounded shadow-lg mx-auto my-10"
+                class="max-w-full max-h-full object-contain shadow-lg"
             />
         }
         @else if (answer() !== null) {
-            <google-map #googleMap (mapInitialized)="onMapReady($event)">
+            <google-map
+                #googleMap
+                height="100%"
+                width="100%"
+                (mapInitialized)="onMapReady($event)">
+
                 <map-marker
                     [position]="{ lat: answer()?.latitude!, lng: answer()?.longitude! }"
-                    [options]="{ draggable: false }"
+                    [options]="{ draggable: false, title: 'Actual Location' }"
                 ></map-marker>
+
                 <map-marker
                     [position]="{ lat: form.get('latitude')!.value!, lng: form.get('longitude')!.value! }"
-                    [options]="{ draggable: false }"
+                    [options]="{ draggable: false, title: 'Your Guess' }"
                 ></map-marker>
+
                 <map-polyline
                     [path]="[
                         { lat: answer()?.latitude!, lng: answer()?.longitude! },
                         { lat: form.get('latitude')!.value!, lng: form.get('longitude')!.value! }
                     ]"
-                    [options]="{ strokeColor: '#FF0000', strokeOpacity: 1.0, strokeWeight: 2 }"
+                    [options]="{ strokeColor: '#9333ea', strokeOpacity: 1.0, strokeWeight: 4, icons: [{icon: {path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 4}, offset: '0', repeat: '20px'}] }"
                 ></map-polyline>
             </google-map>
         }
-
     </div>
-    <div class="w-4/12">
-        <div class="rounded shadow-md p-4 w-full">
-            <h2 class="text-2xl font-bold mb-4">Make Your Guess</h2>
+
+    <div class="w-full lg:w-4/12 flex flex-col justify-center">
+        <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+            <h2 class="text-2xl font-black text-gray-800 mb-1">Make Your Guess</h2>
+            <p class="text-sm text-gray-500 mb-6">Enter coordinates found in the image</p>
+
             <form class="flex flex-col gap-4" [formGroup]="form" (ngSubmit)="submitGuess()">
-                <input
-                    min="-90"
-                    max="90"
-                    formControlName="latitude"
-                    type="number"
-                    placeholder="Enter your latitude here (-90 to 90)"
-                    class="p-2 border border-gray-300 rounded"
-                />
-                <input
-                    min="-180"
-                    max="180"
-                    formControlName="longitude"
-                    type="number"
-                    placeholder="Enter your longitude here (-180 to 180)"
-                    class="p-2 border border-gray-300 rounded"
-                />
-                <button type="submit" class="p-2 bg-purple-600 hover:bg-purple-800 text-white rounded">
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs font-bold uppercase text-gray-400 ml-1">Latitude</label>
+                    <input
+                        formControlName="latitude"
+                        type="number"
+                        placeholder="e.g. -45.56"
+                        class="p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none transition-all"
+                    />
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs font-bold uppercase text-gray-400 ml-1">Longitude</label>
+                    <input
+                        formControlName="longitude"
+                        type="number"
+                        placeholder="e.g. 123.45"
+                        class="p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none transition-all"
+                    />
+                </div>
+
+                <button
+                    type="submit"
+                    [disabled]="form.invalid"
+                    class="mt-2 p-4 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 text-white font-bold rounded-xl shadow-lg transition-transform active:scale-95">
                     Submit Guess
                 </button>
             </form>

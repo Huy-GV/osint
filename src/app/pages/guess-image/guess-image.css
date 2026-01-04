@@ -1,0 +1,6 @@
+/* the map component does not follow the relative height because it's inline */
+google-map {
+  display: block !important;
+  height: 100% !important;
+  width: 100% !important;
+}
