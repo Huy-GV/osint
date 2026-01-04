@@ -10,5 +10,10 @@ export const routes: Routes = [
     {
         component: GameplayPage,
         path: "gameplay"
-    }
+    },
+    {
+        redirectTo: "home",
+        path: "",
+        pathMatch: "full"
+    },
 ];
