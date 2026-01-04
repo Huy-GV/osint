@@ -21,6 +21,10 @@ export class ImageService {
     return this.anonymousImages;
   }
 
+  getImageById(id: Image["id"]): AnonymousImage | undefined {
+    return this.anonymousImages.find(image => image.id === id);
+  }
+
   addGuess(imageId: string, longitude: number, latitude: number) {
     // add a guess here
   }

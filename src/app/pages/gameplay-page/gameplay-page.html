@@ -3,7 +3,8 @@
     <h1 class="text-center text-3xl font-bold border-b-2 p-4 border-b-gray-500">Pick an image to make a guess</h1>
     <div class="flex flex-row flex-wrap justify-center gap-5 ">
         @for(image of images(); track image.id) {
-            <div class="rounded p-3 bg-white flex flex-col items-center justify-center gap-3 shadow-md">
+            <div [routerLink]="['image', image.id]" class="rounded p-3 bg-white flex flex-col items-center justify-center gap-3 shadow-md">
+                <a ></a>
                 <img
                     [src]="image.url"
                     [alt]="'Image ' + image.id"

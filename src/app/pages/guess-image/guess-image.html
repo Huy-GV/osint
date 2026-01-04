@@ -1,0 +1,35 @@
+<main class="w-screen h-screen flex flex-row items-center  px-5 py-10 gap-1">
+    <div class="w-8/12">
+        <img
+            [src]="image().url"
+            [alt]="'Image ' + image().id"
+            class="max-w-lg rounded shadow-lg mx-auto my-10"
+        />
+    </div>
+    <div class="w-4/12">
+        <div class="rounded shadow-md p-4 w-full">
+            <h2 class="text-2xl font-bold mb-4">Make Your Guess</h2>
+            <form class="flex flex-col gap-4" [formGroup]="form" (ngSubmit)="submitGuess()">
+                <input
+                    min="-90"
+                    max="90"
+                    formControlName="latitude"
+                    type="number"
+                    placeholder="Enter your latitude here (-90 to 90)"
+                    class="p-2 border border-gray-300 rounded"
+                />
+                <input
+                    min="-180"
+                    max="180"
+                    formControlName="longitude"
+                    type="number"
+                    placeholder="Enter your longitude here (-180 to 180)"
+                    class="p-2 border border-gray-300 rounded"
+                />
+                <button type="submit" class="p-2 bg-purple-600 hover:bg-purple-800 text-white rounded">
+                    Submit Guess
+                </button>
+            </form>
+        </div>
+    </div>
+</main>
