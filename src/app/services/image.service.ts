@@ -1,12 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 import { AnonymousImage, Image } from '../models/image';
 import { MapService } from './map.service';
+import { ScoreService } from './score.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ImageService {
   private readonly mapService = inject(MapService);
+  private readonly scoreService = inject(ScoreService);
 
   // TODO: move these to Firebase
   private readonly anonymousImages: AnonymousImage[] = [
@@ -88,10 +90,13 @@ export class ImageService {
       { latitude: image.latitude, longitude: image.longitude }
     );
 
+    const score = this.scoreService.calculateScore(distance);
+
     return {
       distanceMeters: distance,
       latitude: image.latitude,
       longitude: image.longitude,
+      score,
     };
   }
 }

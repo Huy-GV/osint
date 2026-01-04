@@ -17,11 +17,13 @@
                 <map-marker
                     [position]="{ lat: answer()?.latitude!, lng: answer()?.longitude! }"
                     [options]="{ draggable: false, title: 'Actual Location' }"
+                    [label]="{ text: 'A', color: 'white', fontWeight: 'bold' }"
                 ></map-marker>
 
                 <map-marker
                     [position]="{ lat: form.get('latitude')!.value!, lng: form.get('longitude')!.value! }"
                     [options]="{ draggable: false, title: 'Your Guess' }"
+                    [label]="{ text: 'G', color: 'white', fontWeight: 'bold' }"
                 ></map-marker>
 
                 <map-polyline
@@ -67,6 +69,22 @@
                     class="mt-2 p-4 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 text-white font-bold rounded-xl shadow-lg transition-transform active:scale-95">
                     Submit Guess
                 </button>
+
+                @if (showAnswer()) {
+                    @if (answer()!.score === 15) {
+                        <p class="font-black text-lg">Score: <span [class.text-yellow-600]="answer()?.score === 15">{{answer()?.score}}</span> out of <span class="text-purple-600">15</span></p>
+                        <P class="font-black text-lg">You picked the exact destination!</P>
+                    }
+                    @else if (answer()!.score > 0) {
+                        <p class="font-black text-lg">Score: <span class="text-blue-600">{{ answer()?.score }}</span> out of <span class="text-purple-600">15</span></p>
+                        <P class="font-black text-lg">You were within <span class="font-bold">{{ answer()?.distanceMeters }} </span> meters of the destination!</P>
+                    }
+                    @else {
+                        <p class="font-black text-lg">Score: <span class="text-red-600">{{ answer()?.score }}</span> out of <span class="text-purple-600">15</span></p>
+                        <P class="font-black text-lg">You were too far away from the destination!</P>
+                    }
+
+                }
             </form>
         </div>
     </div>

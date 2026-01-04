@@ -22,6 +22,7 @@ export class GuessImagePage {
     distanceMeters: number;
     guessLatitude: number;
     guessLongitude: number;
+    score: number;
   } | null>(null);
 
   image = signal(this.imageService.getImageById(this.activatedRoute.snapshot.params['id'])!);
@@ -41,6 +42,7 @@ export class GuessImagePage {
         latitude: answerLatitude,
         longitude: answerLongitude,
         distanceMeters,
+        score,
       } = this.imageService.confirmGuess(guess.id);
 
       this.answer.set({
@@ -49,6 +51,7 @@ export class GuessImagePage {
         distanceMeters,
         guessLatitude: guess.latitude,
         guessLongitude: guess.longitude,
+        score,
       });
 
       this.showAnswer.set(true);
