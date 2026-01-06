@@ -43,6 +43,10 @@ export class ImageService {
     return Promise.resolve(this.anonymousImages);
   }
 
+  getImageCount() {
+    return Promise.resolve(this.images.length);
+  }
+
   getAnonymousImageById(id: Image["id"]) {
     return Promise.resolve(this.anonymousImages.find(image => image.id === id));
   }

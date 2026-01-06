@@ -51,12 +51,19 @@ export class GuessImagePage {
     longitude: new FormControl(null, [Validators.required, Validators.min(-180), Validators.max(180)]),
   });
 
-  submitGuess() {
+  async submitGuess() {
     if (this.form.valid) {
       // TODO: display error message
       const latitude = this.form.get('latitude')!.value!;
       const longitude = this.form.get('longitude')!.value!;
-      this.gameService.confirmGuess(this.id()!, longitude, latitude);
+      const guess = await this.gameService.confirmGuess(this.id()!, longitude, latitude);
+      const progress = await this.gameService.getCurrentSessionProgress();
+      if (progress) {
+        const isFinished = progress.guessCount === progress.imageCount;
+        if (isFinished) {
+          this.router.navigate(["gameplay", "summary", guess.sessionId])
+        }
+      }
       this.answer.reload()
     }
   }

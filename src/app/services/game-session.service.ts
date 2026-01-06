@@ -50,12 +50,7 @@ export class GameSessionService {
 
     this.guesses.push(guess);
 
-    return {
-      distanceMeters: distance,
-      latitude: image.latitude,
-      longitude: image.longitude,
-      score,
-    };
+    return Promise.resolve(guess);
   }
 
   getCurrentSession(): GameSession | undefined {
@@ -79,6 +74,15 @@ export class GameSessionService {
     if (current) {
       current.endedAt = new Date();
     }
+  }
+
+  async getCurrentSessionProgress() {
+    const session = this.getCurrentSession();
+    const imageCount = await this.imageService.getImageCount();
+    return Promise.resolve(session ? {
+      imageCount,
+      guessCount: this.guesses.filter(g => g.sessionId === session.id).length,
+    } : undefined)
   }
 
   findGuess({ sessionId, imageId }: { sessionId?: string, imageId: string }) {
