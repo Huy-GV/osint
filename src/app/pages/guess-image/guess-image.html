@@ -80,7 +80,17 @@
                     }
                     @else if (answer.value()!.score > 0) {
                         <p class="font-black text-lg">Score: <span class="text-blue-600">{{ answer.value().score }}</span> out of <span class="text-purple-600">15</span></p>
-                        <P class="font-black text-lg">You were within <span class="font-bold">{{ answer.value().distanceMeters }} </span> meters of the destination!</P>
+                        <p class="font-black text-lg">
+                            You were within
+                            <span class="font-bold">
+                                @if (answer.value().distanceMeters > 1000) {
+                                    {{ (answer.value().distanceMeters / 1000).toFixed(2) }} km
+                                } @else {
+                                    {{ answer.value().distanceMeters.toFixed(0) }} m
+                                }
+                            </span>
+                            of the destination!
+                        </p>
                     }
                     @else {
                         <p class="font-black text-lg">Score: <span class="text-red-600">{{ answer.value().score }}</span> out of <span class="text-purple-600">15</span></p>

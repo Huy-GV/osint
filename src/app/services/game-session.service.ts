@@ -74,6 +74,8 @@ export class GameSessionService {
     if (current) {
       current.endedAt = new Date();
     }
+
+    return Promise.resolve();
   }
 
   async getCurrentSessionProgress() {
@@ -92,5 +94,23 @@ export class GameSessionService {
     }
 
     return this.guesses.find(g => g.imageId === imageId && g.sessionId === session.id);
+  }
+
+  async getSessionSummary(sessionId: string) {
+    const session = this.sessions.find(s => s.id === sessionId);
+    if (!session) {
+      return undefined;
+    }
+
+    const guesses = this.guesses.filter(g => g.sessionId === sessionId);
+    return {
+      guesses,
+      meta: {
+        gameStartedAt: session.startedAt,
+        gameEndAt: session.endedAt,
+        totalScore: guesses.map(g => g.score).reduce((sum, score) => sum + score, 0),
+        averageDistance: guesses.map(g => g.distanceMeters).reduce((sum, distanceMeters) => sum + distanceMeters, 0) / guesses.length,
+      }
+    }
   }
 }

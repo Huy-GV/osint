@@ -1,1 +1,98 @@
-<p>summary works!</p>
+<main class="w-screen h-screen flex flex-col items-center p-4 lg:px-20 lg:py-10 gap-6 overflow-y-auto bg-gray-50">
+
+  @if (summary.hasValue()) {
+
+    <div class="w-full max-w-4xl bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+      <div class="flex flex-col mb-6 gap-1">
+        <h2 class="text-3xl font-black text-gray-800">Session Results</h2>
+        <p class="text-sm text-gray-500">Performance summary for this round</p>
+      </div>
+
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-purple-50 p-4 rounded-xl border border-purple-100">
+          <p class="text-xs font-bold uppercase text-purple-400">Total Score</p>
+          <p class="text-2xl font-black text-purple-700">
+            {{ summary.value().meta.totalScore }}
+            <span class="text-sm font-normal text-purple-400">/ {{ summary.value().guesses.length * 15 }}</span>
+          </p>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+          <p class="text-xs font-bold uppercase text-gray-400">Avg. Accuracy</p>
+          <p class="text-2xl font-black text-gray-700">
+            {{ (summary.value().meta.averageDistance / 1000).toFixed(2) }} <span class="text-sm font-normal">km</span>
+          </p>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+          <p class="text-xs font-bold uppercase text-gray-400">Started At</p>
+          <p class="text-lg font-bold text-gray-700">{{ summary.value().meta.gameStartedAt | date:'shortTime' }}</p>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+          <p class="text-xs font-bold uppercase text-gray-400">Images</p>
+          <p class="text-2xl font-black text-gray-700">{{ summary.value().guesses.length }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-full max-w-4xl flex flex-col gap-4 mb-10">
+      <h3 class="text-xl font-black text-gray-800 ml-1">Detailed Breakdown</h3>
+
+      @for (guess of summary.value().guesses; track guess.id; let i = $index) {
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden flex flex-col md:flex-row">
+
+          <div class="bg-purple-600 flex md:flex-col items-center justify-center p-4 text-white">
+            <span class="text-xs font-bold uppercase opacity-70 md:mb-1">Guess</span>
+            <span class="text-2xl font-black ml-2 md:ml-0">#{{ i + 1 }}</span>
+          </div>
+
+          <div class="p-6 grow grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <div class="space-y-2">
+              <div>
+                <p class="text-[10px] font-bold uppercase text-gray-400">Actual Location</p>
+                <p class="text-sm font-mono font-bold text-gray-700">{{ guess.imageLatitude.toFixed(4) }}, {{ guess.imageLongitude.toFixed(4) }}</p>
+              </div>
+              <div>
+                <p class="text-[10px] font-bold uppercase text-gray-400">Your Input</p>
+                <p class="text-sm font-mono font-bold text-purple-600">{{ guess.latitude.toFixed(4) }}, {{ guess.longitude.toFixed(4) }}</p>
+              </div>
+            </div>
+
+            <div class="flex flex-col justify-center sm:items-center sm:border-x border-gray-100">
+              <p class="text-[10px] font-bold uppercase text-gray-400">Missed By</p>
+              <p class="text-xl font-black text-gray-800">
+                @if (guess.distanceMeters > 1000) {
+                  {{ (guess.distanceMeters / 1000).toFixed(2) }} <span class="text-sm font-bold">km</span>
+                } @else {
+                  {{ guess.distanceMeters.toFixed(0) }} <span class="text-sm font-bold">m</span>
+                }
+              </p>
+            </div>
+
+            <div class="flex items-center justify-between lg:justify-center lg:flex-col bg-gray-50 rounded-xl p-3 lg:bg-transparent">
+              <p class="text-[10px] font-bold uppercase text-gray-400 lg:mb-1">Score</p>
+              <div class="flex items-baseline gap-1">
+                <span class="text-3xl font-black"
+                  [class.text-yellow-500]="guess.score === 15"
+                  [class.text-blue-600]="guess.score > 0 && guess.score < 15"
+                  [class.text-red-500]="guess.score === 0">
+                  {{ guess.score }}
+                </span>
+                <span class="text-sm font-bold text-gray-400">/ 15</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (summary.isLoading()) {
+    <div class="flex flex-col items-center justify-center h-full">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-purple-600 mb-4"></div>
+        <p class="font-black text-gray-500">Calculating Results...</p>
+    </div>
+  }
+
+</main>

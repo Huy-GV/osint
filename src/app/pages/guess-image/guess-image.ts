@@ -26,7 +26,7 @@ export class GuessImagePage {
   image = resource({
     params: () => ({ id: this.id() }),
     loader: ({ params: { id }}) => {
-      return this.imageService.getAnonymousImageById(this.id()!);
+      return this.imageService.getAnonymousImageById(id!);
     }
   })
 
@@ -61,6 +61,8 @@ export class GuessImagePage {
       if (progress) {
         const isFinished = progress.guessCount === progress.imageCount;
         if (isFinished) {
+          // TODO: change this to display a summary button so the user can still see the results of the final one
+          await this.gameService.endCurrentSession();
           this.router.navigate(["gameplay", "summary", guess.sessionId])
         }
       }
