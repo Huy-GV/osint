@@ -1,4 +1,4 @@
-import { Component, computed, inject, resource } from '@angular/core';
+import { Component, inject, resource } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { ImageService } from '../../services/image.service';
@@ -34,13 +34,13 @@ export class GuessImagePage {
     params: () => ({ id: this.id() }),
     loader: ({ params: { id }}) => {
       const existingGuess = this.gameService.findGuess({ imageId: id! });
-      return Promise.resolve(existingGuess?.guess ? {
-        latitude: existingGuess.image!.latitude,
-        longitude: existingGuess.image!.longitude,
-        distanceMeters: existingGuess.guess!.distanceMeters,
-        guessLatitude: existingGuess.guess!.latitude,
-        guessLongitude: existingGuess.guess!.longitude,
-        score: existingGuess.guess!.score,
+      return Promise.resolve(existingGuess ? {
+        latitude: existingGuess.imageLatitude,
+        longitude: existingGuess.imageLongitude,
+        distanceMeters: existingGuess.distanceMeters,
+        guessLatitude: existingGuess.latitude,
+        guessLongitude: existingGuess.longitude,
+        score: existingGuess.score,
       } : undefined);
     }
   })

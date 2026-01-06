@@ -1,11 +1,15 @@
 <main class="w-screen h-screen flex flex-col lg:flex-row items-center p-4 lg:px-5 lg:py-10 gap-4">
     <div class="w-full lg:w-8/12 h-3/5 lg:h-full flex items-center justify-center overflow-hidden">
         @if (!answer.hasValue()) {
-            <img
-                [src]="image.value()?.url"
-                [alt]="'Image ' + image.value()?.id"
-                class="max-w-full max-h-full object-contain shadow-lg"
-            />
+            @if (image.isLoading()) {
+                <p>Loading images...</p>
+            } @else if (image.hasValue()) {
+                <img
+                    [src]="image.value().url"
+                    [alt]="'Image ' + image.value().id"
+                    class="max-w-full max-h-full object-contain shadow-lg"
+                />
+            }
         }
         @else {
             <google-map

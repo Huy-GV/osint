@@ -37,8 +37,6 @@ export class ImageService {
     },
   ];
 
-
-  // TODO: move these to Firebase
   private readonly anonymousImages: AnonymousImage[] = this.images.map(({ id, url, nextId, prevId }) => ({ id, url, nextId, prevId }));
 
   getAllImages() {

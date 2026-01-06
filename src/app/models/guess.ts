@@ -5,6 +5,8 @@ export interface Guess {
   sessionId: string;
   longitude: number;
   latitude: number;
+  imageLongitude: number;
+  imageLatitude: number;
   score: number;
   distanceMeters: number;
 }

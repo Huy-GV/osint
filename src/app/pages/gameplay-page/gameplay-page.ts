@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, resource } from '@angular/core';
 import { ImageService } from '../../services/image.service';
 import { RouterLink } from "@angular/router";
 
@@ -10,6 +10,9 @@ import { RouterLink } from "@angular/router";
 })
 export class GameplayPage {
   private readonly imageService = inject(ImageService);
-
-  images = signal(this.imageService.getAllImages());
+  images = resource({
+    loader: () => {
+      return this.imageService.getAllImages();
+    }
+  })
 }

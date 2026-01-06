@@ -7,16 +7,22 @@
     </div>
 
     <div class="flex flex-row flex-wrap justify-center gap-8 max-w-7xl mx-auto">
-        @for(image of images(); track image.id) {
-            <div [routerLink]="['image', image.id]" class="group relative w-64 h-64 bg-white rounded-3xl p-3 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100">
-                <div class="w-full h-full overflow-hidden rounded-2xl bg-gray-200">
-                    <img
-                        [src]="image.url"
-                        [alt]="'Image ' + image.id"
-                        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
+        @if (images.isLoading()) {
+            <p>Loading images...</p>
+        } @else {
+            @for (image of images.value(); track image.id) {
+                <div [routerLink]="['image', image.id]" class="group relative w-64 h-64 bg-white rounded-3xl p-3 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100">
+                    <div class="w-full h-full overflow-hidden rounded-2xl bg-gray-200">
+                        <img
+                            [src]="image.url"
+                            [alt]="'Image ' + image.id"
+                            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                    </div>
                 </div>
-            </div>
+            } @empty {
+                <p>No images found.</p>
+            }
         }
     </div>
     <p class="mt-10 text-lg font-black text-gray-800 tracking-tight text-center">

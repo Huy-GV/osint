@@ -35,13 +35,14 @@ export class GameSessionService {
       throw new Error('Session not found');
     }
 
-    const guess = {
+    const guess: Guess = {
       id: crypto.randomUUID(),
       imageId,
       sessionId: session.id,
       longitude,
       latitude,
-      confirmed: false,
+      imageLongitude: image.longitude,
+      imageLatitude: image.latitude,
       score,
       distanceMeters: distance,
       createdAt: new Date(),
@@ -86,15 +87,6 @@ export class GameSessionService {
       return null;
     }
 
-    // TODO: denormalize into the doc
-    const image = this.imageService.getImageById(imageId);
-    if (!image) {
-      return null;
-    }
-
-    return {
-      guess: this.guesses.find(g => g.imageId === imageId && g.sessionId === session.id),
-      image,
-    }
+    return this.guesses.find(g => g.imageId === imageId && g.sessionId === session.id);
   }
 }
