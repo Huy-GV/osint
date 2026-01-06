@@ -4,6 +4,9 @@ export interface Image {
   name: string;
   longitude: number;
   latitude: number;
+
+  prevId: string | null;
+  nextId: string | null;
 }
 
 export interface AnonymousImage extends Omit<Image, "longitude" | "latitude" | "name"> { }

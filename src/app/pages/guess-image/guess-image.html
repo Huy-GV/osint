@@ -1,34 +1,34 @@
 <main class="w-screen h-screen flex flex-col lg:flex-row items-center p-4 lg:px-5 lg:py-10 gap-4">
     <div class="w-full lg:w-8/12 h-3/5 lg:h-full flex items-center justify-center overflow-hidden">
-        @if (!showAnswer()) {
+        @if (!answer.hasValue()) {
             <img
-                [src]="image().url"
-                [alt]="'Image ' + image().id"
+                [src]="image.value()?.url"
+                [alt]="'Image ' + image.value()?.id"
                 class="max-w-full max-h-full object-contain shadow-lg"
             />
         }
-        @else if (answer() !== null) {
+        @else {
             <google-map
                 height="100%"
                 width="100%"
                 (mapInitialized)="onMapReady($event)">
 
                 <map-marker
-                    [position]="{ lat: answer()!.latitude!, lng: answer()!.longitude! }"
+                    [position]="{ lat: answer.value().latitude, lng: answer.value().longitude! }"
                     [options]="{ draggable: false, title: 'Actual Location' }"
                     [label]="{ text: 'A', color: 'white', fontWeight: 'bold' }"
                 ></map-marker>
 
                 <map-marker
-                    [position]="{ lat: answer()!.guessLatitude!, lng: answer()!.guessLongitude! }"
+                    [position]="{ lat: answer.value().guessLatitude, lng: answer.value().guessLongitude! }"
                     [options]="{ draggable: false, title: 'Your Guess' }"
                     [label]="{ text: 'G', color: 'white', fontWeight: 'bold' }"
                 ></map-marker>
 
                 <map-polyline
                     [path]="[
-                        { lat: answer()?.latitude!, lng: answer()?.longitude! },
-                        { lat: answer()!.guessLatitude!, lng: answer()!.guessLongitude! }
+                        { lat: answer.value().latitude, lng: answer.value().longitude },
+                        { lat: answer.value().guessLatitude, lng: answer.value().guessLongitude }
                     ]"
                     [options]="{ strokeColor: '#9333ea', strokeOpacity: 1.0, strokeWeight: 4, icons: [{icon: {path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 4}, offset: '0', repeat: '20px'}] }"
                 ></map-polyline>
@@ -64,31 +64,34 @@
 
                 <button
                     type="submit"
-                    [disabled]="form.invalid || showAnswer()"
+                    [disabled]="form.invalid || answer.hasValue()"
                     class="mt-2 p-4 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 text-white font-bold rounded-xl shadow-lg transition-transform active:scale-95">
                     Submit Guess
                 </button>
 
-                @if (showAnswer()) {
-                    @if (answer()!.score === 15) {
-                        <p class="font-black text-lg">Score: <span [class.text-yellow-600]="answer()?.score === 15">{{answer()?.score}}</span> out of <span class="text-purple-600">15</span></p>
+                @if (answer.hasValue()) {
+                    @if (answer.value()!.score === 15) {
+                        <p class="font-black text-lg">Score: <span [class.text-yellow-600]="answer.value().score === 15">{{answer.value().score}}</span> out of <span class="text-purple-600">15</span></p>
                         <P class="font-black text-lg">You picked the exact destination!</P>
                     }
-                    @else if (answer()!.score > 0) {
-                        <p class="font-black text-lg">Score: <span class="text-blue-600">{{ answer()?.score }}</span> out of <span class="text-purple-600">15</span></p>
-                        <P class="font-black text-lg">You were within <span class="font-bold">{{ answer()?.distanceMeters }} </span> meters of the destination!</P>
+                    @else if (answer.value()!.score > 0) {
+                        <p class="font-black text-lg">Score: <span class="text-blue-600">{{ answer.value().score }}</span> out of <span class="text-purple-600">15</span></p>
+                        <P class="font-black text-lg">You were within <span class="font-bold">{{ answer.value().distanceMeters }} </span> meters of the destination!</P>
                     }
                     @else {
-                        <p class="font-black text-lg">Score: <span class="text-red-600">{{ answer()?.score }}</span> out of <span class="text-purple-600">15</span></p>
+                        <p class="font-black text-lg">Score: <span class="text-red-600">{{ answer.value().score }}</span> out of <span class="text-purple-600">15</span></p>
                         <P class="font-black text-lg">You were too far away from the destination!</P>
                     }
 
                 }
 
-                <div class="flex flex-row justify-around items-center">
-                    <button [disabled]="!this.navigationIds().prevId" (click)="onImageClicked(this.navigationIds().prevId)" class="border-purple-600 border-2 mt-2 p-4 text-purple-600 disabled:bg-gray-300 font-bold rounded-xl shadow-lg transition-transform active:scale-95">Previous</button>
-                    <button [disabled]="!this.navigationIds().nextId" (click)="onImageClicked(this.navigationIds().nextId)" class="border-purple-600 border-2 mt-2 p-4 text-purple-600 disabled:bg-gray-300 font-bold rounded-xl shadow-lg transition-transform active:scale-95">Next</button>
-                </div>
+                @if (image.hasValue()) {
+                    <div class="flex flex-row justify-around items-center">
+                        <button [disabled]="!image.value().prevId" (click)="onImageClicked(image.value().prevId)" class="border-purple-600 border-2 mt-2 p-4 text-purple-600 disabled:bg-gray-300 font-bold rounded-xl shadow-lg transition-transform active:scale-95">Previous</button>
+                        <button [disabled]="!image.value().nextId" (click)="onImageClicked(image.value().nextId)" class="border-purple-600 border-2 mt-2 p-4 text-purple-600 disabled:bg-gray-300 font-bold rounded-xl shadow-lg transition-transform active:scale-95">Next</button>
+                    </div>
+                }
+
             </form>
         </div>
     </div>

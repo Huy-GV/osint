@@ -1,4 +1,4 @@
-import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
+import { Component, computed, inject, resource } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { ImageService } from '../../services/image.service';
@@ -23,41 +23,27 @@ export class GuessImagePage {
     this.activatedRoute.params.pipe(map(p => p['id'] as string))
   );
 
-  image = computed(() => this.imageService.getAnonymousImageById(this.id()!)!);
-  navigationIds = computed(() => this.imageService.getNavigationIds(this.image().id));
-
-  // TODO: combine this with answer??
-  showAnswer = linkedSignal({
-    source: this.id,
-    computation: (id) => !!this.gameService.findGuess({ imageId: id! })
-  });
-
-  // TODO: convert this to a pure compute or resource ??
-  answer = linkedSignal<string | undefined, {
-    latitude: number;
-    longitude: number;
-    distanceMeters: number;
-    guessLatitude: number;
-    guessLongitude: number;
-    score: number;
-  } | null>({
-    source: this.id,
-    computation: (id) => {
-      const existing = this.gameService.findGuess({ imageId: id! });
-      if (existing) {
-        const image = this.imageService.getImageById(id!);
-        return {
-          latitude: image!.latitude,
-          longitude: image!.longitude,
-          distanceMeters: existing.distanceMeters,
-          guessLatitude: existing.latitude,
-          guessLongitude: existing.longitude,
-          score: existing.score,
-        };
-      }
-      return null;
+  image = resource({
+    params: () => ({ id: this.id() }),
+    loader: ({ params: { id }}) => {
+      return this.imageService.getAnonymousImageById(this.id()!);
     }
-  });
+  })
+
+  answer = resource({
+    params: () => ({ id: this.id() }),
+    loader: ({ params: { id }}) => {
+      const existingGuess = this.gameService.findGuess({ imageId: id! });
+      return Promise.resolve(existingGuess?.guess ? {
+        latitude: existingGuess.image!.latitude,
+        longitude: existingGuess.image!.longitude,
+        distanceMeters: existingGuess.guess!.distanceMeters,
+        guessLatitude: existingGuess.guess!.latitude,
+        guessLongitude: existingGuess.guess!.longitude,
+        score: existingGuess.guess!.score,
+      } : undefined);
+    }
+  })
 
   form = new FormGroup({
     // TODO: need to review the bounds here
@@ -70,34 +56,19 @@ export class GuessImagePage {
       // TODO: display error message
       const latitude = this.form.get('latitude')!.value!;
       const longitude = this.form.get('longitude')!.value!;
-      const {
-        latitude: answerLatitude,
-        longitude: answerLongitude,
-        distanceMeters,
-        score,
-      } = this.gameService.confirmGuess(this.id()!, longitude, latitude);
-
-      this.answer.set({
-        latitude: answerLatitude,
-        longitude: answerLongitude,
-        distanceMeters,
-        guessLatitude: latitude,
-        guessLongitude: longitude,
-        score,
-      });
-
-      this.showAnswer.set(true)
+      this.gameService.confirmGuess(this.id()!, longitude, latitude);
+      this.answer.reload()
     }
   }
 
   onMapReady(map: google.maps.Map) {
-    if (!this.answer() || !this.showAnswer()) {
+    if (!this.answer.hasValue()) {
       return;
     }
 
     const bounds = new google.maps.LatLngBounds();
-    bounds.extend(new google.maps.LatLng({ lat: this.answer()!.latitude, lng: this.answer()!.longitude }));
-    bounds.extend(new google.maps.LatLng({ lat: this.answer()!.guessLatitude, lng: this.answer()!.guessLongitude }));
+    bounds.extend(new google.maps.LatLng({ lat: this.answer.value().latitude, lng: this.answer.value().longitude }));
+    bounds.extend(new google.maps.LatLng({ lat: this.answer.value().guessLatitude, lng: this.answer.value().guessLongitude }));
     map.fitBounds(bounds);
   }
 

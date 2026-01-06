@@ -13,34 +13,40 @@ export class ImageService {
       url: '/images/image1.jpg',
       latitude: -33.8468002,
       longitude: 151.1600887,
-      name: "Sydney"
+      name: "Sydney",
+      prevId: null,
+      nextId: '2',
     },
     {
       id: '2',
       url: '/images/image2.jpg',
       latitude: 43.0763447,
       longitude: 25.6332728,
-      name: "Bulgaria"
+      name: "Bulgaria",
+      prevId: '1',
+      nextId: '3',
     },
     {
       id: '3',
       url: '/images/image3.png',
       latitude: 46.5008485,
       longitude: 7.7061998,
-      name: "Swiss Alps"
+      name: "Swiss Alps",
+      prevId: '2',
+      nextId: null,
     },
   ];
 
 
   // TODO: move these to Firebase
-  private readonly anonymousImages: AnonymousImage[] = this.images.map(({ id, url }) => ({ id, url }));
+  private readonly anonymousImages: AnonymousImage[] = this.images.map(({ id, url, nextId, prevId }) => ({ id, url, nextId, prevId }));
 
   getAllImages() {
-    return this.anonymousImages;
+    return Promise.resolve(this.anonymousImages);
   }
 
-  getAnonymousImageById(id: Image["id"]): AnonymousImage | undefined {
-    return this.anonymousImages.find(image => image.id === id);
+  getAnonymousImageById(id: Image["id"]) {
+    return Promise.resolve(this.anonymousImages.find(image => image.id === id));
   }
 
   getImageById(id: Image["id"]): Image | undefined {
@@ -49,8 +55,6 @@ export class ImageService {
 
   getNavigationIds(id: Image["id"]) {
     const currentIndex = this.images.findIndex(img => img.id === id);
-
-    // If image not found, return null for both
     if (currentIndex === -1) {
       return { prevId: null, nextId: null };
     }

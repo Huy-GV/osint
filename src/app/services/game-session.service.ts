@@ -14,7 +14,6 @@ export class GameSessionService {
   private readonly mapService = inject(MapService);
   private readonly scoreService = inject(ScoreService);
 
-  // TODO: convert to signal
   // TODO: move these to Firebase
   private guesses: Guess[] = [];
   private sessions: GameSession[] = [];
@@ -87,11 +86,15 @@ export class GameSessionService {
       return null;
     }
 
+    // TODO: denormalize into the doc
     const image = this.imageService.getImageById(imageId);
     if (!image) {
       return null;
     }
 
-    return this.guesses.find(g => g.imageId === imageId && g.sessionId === session.id)
+    return {
+      guess: this.guesses.find(g => g.imageId === imageId && g.sessionId === session.id),
+      image,
+    }
   }
 }
