@@ -7,16 +7,6 @@ import { ScoreService } from './score.service';
   providedIn: 'root',
 })
 export class ImageService {
-  private readonly mapService = inject(MapService);
-  private readonly scoreService = inject(ScoreService);
-
-  // TODO: move these to Firebase
-  private readonly anonymousImages: AnonymousImage[] = [
-    { id: '1', url: '/images/image1.jpg', },
-    { id: '2', url: '/images/image2.jpg', },
-    { id: '3', url: '/images/image3.png', },
-  ]
-
   private readonly images: Image[] = [
     {
       id: '1',
@@ -41,62 +31,36 @@ export class ImageService {
     },
   ];
 
-  private guesses: {
-    id: string;
-    imageId: string;
-    longitude: number;
-    latitude: number;
-    confirmed: boolean;
-  } [] = []
+
+  // TODO: move these to Firebase
+  private readonly anonymousImages: AnonymousImage[] = this.images.map(({ id, url }) => ({ id, url }));
 
   getAllImages() {
     return this.anonymousImages;
   }
 
-  getImageById(id: Image["id"]): AnonymousImage | undefined {
+  getAnonymousImageById(id: Image["id"]): AnonymousImage | undefined {
     return this.anonymousImages.find(image => image.id === id);
   }
 
-  addGuess(imageId: string, longitude: number, latitude: number) {
-    // add a guess here
-    const newGuess = {
-      id: crypto.randomUUID(),
-      imageId,
-      longitude,
-      latitude,
-      confirmed: false,
-    }
-    this.guesses.push(newGuess);
-
-    return newGuess;
+  getImageById(id: Image["id"]): Image | undefined {
+    return this.images.find(image => image.id === id);
   }
 
-  confirmGuess(guessId: string) {
-    const guess = this.guesses.find(g => g.id === guessId);
-    if (!guess) {
-      throw new Error('Guess not found');
+  getNavigationIds(id: Image["id"]) {
+    const currentIndex = this.images.findIndex(img => img.id === id);
+
+    // If image not found, return null for both
+    if (currentIndex === -1) {
+      return { prevId: null, nextId: null };
     }
 
-    guess.confirmed = true;
-    this.guesses = this.guesses.map(g => g.id === guessId ? guess : g);
-
-    const image = this.images.find(i => i.id === guess.imageId);
-    if (!image) {
-      throw new Error('Image not found');
-    }
-
-    const distance = this.mapService.calculateDistanceMeters(
-      { latitude: guess.latitude, longitude: guess.longitude },
-      { latitude: image.latitude, longitude: image.longitude }
-    );
-
-    const score = this.scoreService.calculateScore(distance);
+    const prevId = currentIndex > 0 ? this.images[currentIndex - 1].id : null;
+    const nextId = currentIndex < this.images.length - 1 ? this.images[currentIndex + 1].id : null;
 
     return {
-      distanceMeters: distance,
-      latitude: image.latitude,
-      longitude: image.longitude,
-      score,
+      prevId,
+      nextId
     };
   }
 }

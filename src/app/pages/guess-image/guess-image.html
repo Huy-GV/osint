@@ -9,19 +9,18 @@
         }
         @else if (answer() !== null) {
             <google-map
-                #googleMap
                 height="100%"
                 width="100%"
                 (mapInitialized)="onMapReady($event)">
 
                 <map-marker
-                    [position]="{ lat: answer()?.latitude!, lng: answer()?.longitude! }"
+                    [position]="{ lat: answer()!.latitude!, lng: answer()!.longitude! }"
                     [options]="{ draggable: false, title: 'Actual Location' }"
                     [label]="{ text: 'A', color: 'white', fontWeight: 'bold' }"
                 ></map-marker>
 
                 <map-marker
-                    [position]="{ lat: form.get('latitude')!.value!, lng: form.get('longitude')!.value! }"
+                    [position]="{ lat: answer()!.guessLatitude!, lng: answer()!.guessLongitude! }"
                     [options]="{ draggable: false, title: 'Your Guess' }"
                     [label]="{ text: 'G', color: 'white', fontWeight: 'bold' }"
                 ></map-marker>
@@ -29,7 +28,7 @@
                 <map-polyline
                     [path]="[
                         { lat: answer()?.latitude!, lng: answer()?.longitude! },
-                        { lat: form.get('latitude')!.value!, lng: form.get('longitude')!.value! }
+                        { lat: answer()!.guessLatitude!, lng: answer()!.guessLongitude! }
                     ]"
                     [options]="{ strokeColor: '#9333ea', strokeOpacity: 1.0, strokeWeight: 4, icons: [{icon: {path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 4}, offset: '0', repeat: '20px'}] }"
                 ></map-polyline>
@@ -65,7 +64,7 @@
 
                 <button
                     type="submit"
-                    [disabled]="form.invalid"
+                    [disabled]="form.invalid || showAnswer()"
                     class="mt-2 p-4 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 text-white font-bold rounded-xl shadow-lg transition-transform active:scale-95">
                     Submit Guess
                 </button>
@@ -85,6 +84,11 @@
                     }
 
                 }
+
+                <div class="flex flex-row justify-around items-center">
+                    <button [disabled]="!this.navigationIds().prevId" (click)="onImageClicked(this.navigationIds().prevId)" class="border-purple-600 border-2 mt-2 p-4 text-purple-600 disabled:bg-gray-300 font-bold rounded-xl shadow-lg transition-transform active:scale-95">Previous</button>
+                    <button [disabled]="!this.navigationIds().nextId" (click)="onImageClicked(this.navigationIds().nextId)" class="border-purple-600 border-2 mt-2 p-4 text-purple-600 disabled:bg-gray-300 font-bold rounded-xl shadow-lg transition-transform active:scale-95">Next</button>
+                </div>
             </form>
         </div>
     </div>
