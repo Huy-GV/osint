@@ -49,7 +49,7 @@ export class GameSessionService {
       score,
       distanceMeters: distance,
       createdAt: new Date(),
-    }
+    };
 
     const guessCollection = this.getGuessCollection(session.id);
     const guessDoc = await addDoc(guessCollection, guess)
@@ -129,7 +129,6 @@ export class GameSessionService {
     }
 
     const guessDoc = guessDocs.docs[0];
-    // TODO: use converters here
     return {
       ...guessDoc.data(),
       id: guessDoc.id,
@@ -150,7 +149,6 @@ export class GameSessionService {
     return {
       guesses,
       meta: {
-        // TODO: review the timestamp values here
         gameStartedAt: session.startedAt.toDate(),
         gameEndAt: session.endedAt?.toDate(),
         totalScore: guesses

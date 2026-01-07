@@ -25,17 +25,17 @@ export class GuessImagePage {
 
   image = resource({
     params: () => ({ id: this.id() }),
-    loader: ({ params: { id }}) => {
+    loader: ({ params: { id } }) => {
       return this.imageService.getAnonymousImageById(id!);
     }
-  })
+  });
 
   answer = resource({
     params: () => ({ id: this.id() }),
-    loader: ({ params: { id }}) => {
+    loader: ({ params: { id } }) => {
       return this.gameService.findGuess({ imageId: id! });
     }
-  })
+  });
 
   sessionProgress = resource({
     loader: () => {
