@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
+import { connectFirestoreEmulator } from '@firebase/firestore';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -20,6 +21,15 @@ export const appConfig: ApplicationConfig = {
       // projectNumber: "487086894126",
       // version: "2"
     })),
-    provideFirestore(() => getFirestore())
+    provideFirestore(() => {
+      const firestore = getFirestore();
+      const isLocal = window.location.hostname === 'localhost';
+      if (isLocal) {
+        connectFirestoreEmulator(firestore, 'localhost', 8000);
+        console.log('Using Emulator');
+      }
+
+      return firestore;
+    })
   ]
 };

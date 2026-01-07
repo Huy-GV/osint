@@ -1,4 +1,4 @@
-import { Component, inject, resource } from '@angular/core';
+import { Component, computed, inject, resource } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { ImageService } from '../../services/image.service';
@@ -25,48 +25,44 @@ export class GuessImagePage {
 
   image = resource({
     params: () => ({ id: this.id() }),
-    loader: ({ params: { id }}) => {
+    loader: ({ params: { id } }) => {
       return this.imageService.getAnonymousImageById(id!);
     }
-  })
+  });
 
   answer = resource({
     params: () => ({ id: this.id() }),
-    loader: ({ params: { id }}) => {
-      const existingGuess = this.gameService.findGuess({ imageId: id! });
-      return Promise.resolve(existingGuess ? {
-        latitude: existingGuess.imageLatitude,
-        longitude: existingGuess.imageLongitude,
-        distanceMeters: existingGuess.distanceMeters,
-        guessLatitude: existingGuess.latitude,
-        guessLongitude: existingGuess.longitude,
-        score: existingGuess.score,
-      } : undefined);
+    loader: ({ params: { id } }) => {
+      return this.gameService.findGuess({ imageId: id! });
     }
-  })
+  });
+
+  sessionProgress = resource({
+    loader: () => {
+      return this.gameService.getCurrentSessionProgress();
+    }
+  });
+
+  canNavigateToSummary = computed(() => this.sessionProgress.hasValue() && this.sessionProgress.value().guessCount === this.sessionProgress.value().imageCount);
 
   form = new FormGroup({
-    // TODO: need to review the bounds here
     latitude: new FormControl(null, [Validators.required, Validators.min(-90), Validators.max(90)]),
     longitude: new FormControl(null, [Validators.required, Validators.min(-180), Validators.max(180)]),
   });
 
   async submitGuess() {
     if (this.form.valid) {
-      // TODO: display error message
       const latitude = this.form.get('latitude')!.value!;
       const longitude = this.form.get('longitude')!.value!;
-      const guess = await this.gameService.confirmGuess(this.id()!, longitude, latitude);
-      const progress = await this.gameService.getCurrentSessionProgress();
-      if (progress) {
-        const isFinished = progress.guessCount === progress.imageCount;
-        if (isFinished) {
-          // TODO: change this to display a summary button so the user can still see the results of the final one
-          await this.gameService.endCurrentSession();
-          this.router.navigate(["gameplay", "summary", guess.sessionId])
-        }
-      }
-      this.answer.reload()
+      await this.gameService.confirmGuess(this.id()!, longitude, latitude);
+      this.answer.reload();
+      this.sessionProgress.reload();
+    }
+  }
+
+  async navigateToSummary() {
+    if (this.canNavigateToSummary()) {
+      this.router.navigate(["gameplay", "summary", this.sessionProgress.value()!.sessionId]);
     }
   }
 
@@ -76,8 +72,8 @@ export class GuessImagePage {
     }
 
     const bounds = new google.maps.LatLngBounds();
+    bounds.extend(new google.maps.LatLng({ lat: this.answer.value().imageLatitude, lng: this.answer.value().imageLongitude }));
     bounds.extend(new google.maps.LatLng({ lat: this.answer.value().latitude, lng: this.answer.value().longitude }));
-    bounds.extend(new google.maps.LatLng({ lat: this.answer.value().guessLatitude, lng: this.answer.value().guessLongitude }));
     map.fitBounds(bounds);
   }
 

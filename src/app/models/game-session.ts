@@ -1,5 +1,7 @@
+import { Timestamp } from "firebase/firestore";
+
 export interface GameSession {
     id: string;
-    startedAt: Date;
-    endedAt?: Date;
+    startedAt: Timestamp;
+    endedAt?: Timestamp;
 }

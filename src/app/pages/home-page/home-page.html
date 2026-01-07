@@ -1,7 +1,7 @@
 <main class="flex flex-col items-center justify-center h-screen gap-5">
     <h1 class="text-3xl font-bold">OSINT</h1>
 
-    @if (!currentSession()) {
+    @if (!currentSession.hasValue()) {
 
         <a class="mt-2 p-4 bg-purple-600 hover:pointer hover:bg-purple-700 disabled:bg-gray-300 text-white font-bold rounded-xl shadow-lg transition-transform active:scale-95" (click)="startNewSession()">New Game</a>
     }

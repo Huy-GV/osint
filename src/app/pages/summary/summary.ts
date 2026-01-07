@@ -1,5 +1,5 @@
 import { Component, inject, resource } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
 import { GameSessionService } from '../../services/game-session.service';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -12,6 +12,7 @@ import { DatePipe } from '@angular/common';
   styleUrl: './summary.css',
 })
 export class Summary {
+  private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly gameService = inject(GameSessionService);
   private readonly id = toSignal(
@@ -23,5 +24,10 @@ export class Summary {
     loader: ({ params: { id } }) => {
       return this.gameService.getSessionSummary(id!);
     }
-  })
+  });
+
+  async startNewGame() {
+    await this.gameService.endCurrentSession();
+    this.router.navigate(["home"]);
+  }
 }
