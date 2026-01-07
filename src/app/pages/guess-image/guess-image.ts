@@ -1,4 +1,4 @@
-import { Component, inject, resource } from '@angular/core';
+import { Component, computed, inject, resource } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { ImageService } from '../../services/image.service';
@@ -37,6 +37,14 @@ export class GuessImagePage {
     }
   })
 
+  sessionProgress = resource({
+    loader: () => {
+      return this.gameService.getCurrentSessionProgress();
+    }
+  });
+
+  canNavigateToSummary = computed(() => this.sessionProgress.hasValue() && this.sessionProgress.value().guessCount === this.sessionProgress.value().imageCount);
+
   form = new FormGroup({
     // TODO: need to review the bounds here
     latitude: new FormControl(null, [Validators.required, Validators.min(-90), Validators.max(90)]),
@@ -48,17 +56,15 @@ export class GuessImagePage {
       // TODO: display error message
       const latitude = this.form.get('latitude')!.value!;
       const longitude = this.form.get('longitude')!.value!;
-      const guess = await this.gameService.confirmGuess(this.id()!, longitude, latitude);
-      const progress = await this.gameService.getCurrentSessionProgress();
-      if (progress) {
-        const isFinished = progress.guessCount === progress.imageCount;
-        if (isFinished) {
-          // TODO: change this to display a summary button so the user can still see the results of the final one
-          await this.gameService.endCurrentSession();
-          this.router.navigate(["gameplay", "summary", guess.sessionId])
-        }
-      }
-      this.answer.reload()
+      await this.gameService.confirmGuess(this.id()!, longitude, latitude);
+      this.answer.reload();
+      this.sessionProgress.reload();
+    }
+  }
+
+  async navigateToSummary() {
+    if (this.canNavigateToSummary()) {
+      this.router.navigate(["gameplay", "summary", this.sessionProgress.value()!.sessionId]);
     }
   }
 

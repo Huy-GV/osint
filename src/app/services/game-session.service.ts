@@ -106,6 +106,7 @@ export class GameSessionService {
     const guessDocCount = await getCountFromServer(guessQuery);
 
     return {
+      sessionId: session.id,
       imageCount,
       guessCount: guessDocCount.data().count,
     };

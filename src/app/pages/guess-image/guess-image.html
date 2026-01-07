@@ -106,6 +106,16 @@
                     </div>
                 }
 
+                @if (canNavigateToSummary()) {
+                    <button
+                        type="button"
+                        (click)="navigateToSummary()"
+                        class="mt-4 p-4 bg-purple-600 hover:bg-purple-700 text-white font-black rounded-xl shadow-lg transition-all active:scale-95 animate-bounce"
+                    >
+                        View Final Results
+                    </button>
+                }
+
             </form>
         </div>
     </div>
