@@ -46,14 +46,12 @@ export class GuessImagePage {
   canNavigateToSummary = computed(() => this.sessionProgress.hasValue() && this.sessionProgress.value().guessCount === this.sessionProgress.value().imageCount);
 
   form = new FormGroup({
-    // TODO: need to review the bounds here
     latitude: new FormControl(null, [Validators.required, Validators.min(-90), Validators.max(90)]),
     longitude: new FormControl(null, [Validators.required, Validators.min(-180), Validators.max(180)]),
   });
 
   async submitGuess() {
     if (this.form.valid) {
-      // TODO: display error message
       const latitude = this.form.get('latitude')!.value!;
       const longitude = this.form.get('longitude')!.value!;
       await this.gameService.confirmGuess(this.id()!, longitude, latitude);

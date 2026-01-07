@@ -51,9 +51,19 @@
                     <input
                         formControlName="latitude"
                         type="number"
-                        placeholder="e.g. -45.56"
-                        class="p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none transition-all"
+                        step="0.0000001"
+                        placeholder="e.g. -45.56789123"
+                        class="p-3 bg-gray-50 border rounded-lg focus:ring-2 outline-none transition-all"
+                        [class.border-red-500]="form.get('latitude')?.invalid && form.get('latitude')?.touched"
+                        [class.focus:ring-purple-500]="form.get('latitude')?.valid"
+                        [class.focus:ring-red-300]="form.get('latitude')?.invalid"
+                        [class.border-gray-200]="!(form.get('longitude')?.invalid && form.get('longitude')?.touched)"
                     />
+                    @if (form.get('latitude')?.invalid && form.get('latitude')?.touched) {
+                        <span class="text-[10px] font-bold text-red-500 ml-1 italic uppercase">
+                            Must be between -90 and 90
+                        </span>
+                    }
                 </div>
 
                 <div class="flex flex-col gap-1">
@@ -61,9 +71,20 @@
                     <input
                         formControlName="longitude"
                         type="number"
-                        placeholder="e.g. 123.45"
-                        class="p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none transition-all"
+                        step="0.0000001"
+                        placeholder="e.g. 123.4567898"
+                        class="p-3 bg-gray-50 border rounded-lg focus:ring-2 outline-none transition-all"
+                        [class.border-red-500]="form.get('longitude')?.invalid && form.get('longitude')?.touched"
+                        [class.border-gray-200]="!(form.get('longitude')?.invalid && form.get('longitude')?.touched)"
+                        [class.focus:ring-purple-500]="form.get('longitude')?.valid"
+                        [class.focus:ring-red-300]="form.get('longitude')?.invalid"
+                        [class.border-gray-200]="!(form.get('longitude')?.invalid && form.get('longitude')?.touched)"
                     />
+                    @if (form.get('longitude')?.invalid && form.get('longitude')?.touched) {
+                        <span class="text-[10px] font-bold text-red-500 ml-1 italic uppercase">
+                            Must be between -180 and 180
+                        </span>
+                    }
                 </div>
 
                 <button
