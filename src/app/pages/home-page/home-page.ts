@@ -16,8 +16,8 @@ export class HomePage {
     loader: () => this.gameService.getCurrentSession()
   })
 
-  startNewSession() {
-    this.gameService.startNewSession();
+  async startNewSession() {
+    await this.gameService.startNewSession();
     this.router.navigate(["gameplay"]);
   }
 }
