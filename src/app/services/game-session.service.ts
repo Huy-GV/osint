@@ -4,6 +4,8 @@ import { ScoreService } from './score.service';
 import { ImageService } from './image.service';
 import { GameSession } from '../models/game-session';
 import { Guess } from '../models/guess';
+import { Firestore } from '@angular/fire/firestore';
+import { addDoc, collection, getCountFromServer, getDoc, getDocs, getDocsFromServer, query, where } from 'firebase/firestore';
 
 @Injectable({
   providedIn: 'root',
@@ -13,12 +15,15 @@ export class GameSessionService {
   private readonly imageService = inject(ImageService);
   private readonly mapService = inject(MapService);
   private readonly scoreService = inject(ScoreService);
+  private readonly firestore = inject(Firestore);
 
   // TODO: move these to Firebase
-  private guesses: Guess[] = [];
   private sessions: GameSession[] = [];
 
-  confirmGuess(imageId: string, longitude: number, latitude: number) {
+  private guessCollection = collection(this.firestore, "guesses");
+  private sessionCollection = collection(this.firestore, "sessions");
+
+  async confirmGuess(imageId: string, longitude: number, latitude: number) {
     const image = this.imageService.getImageById(imageId);
     if (!image) {
       throw new Error('Image not found');
@@ -35,8 +40,7 @@ export class GameSessionService {
       throw new Error('Session not found');
     }
 
-    const guess: Guess = {
-      id: crypto.randomUUID(),
+    const guess: Omit<Guess, "id"> = {
       imageId,
       sessionId: session.id,
       longitude,
@@ -48,9 +52,11 @@ export class GameSessionService {
       createdAt: new Date(),
     }
 
-    this.guesses.push(guess);
-
-    return Promise.resolve(guess);
+    const guessDoc = await addDoc(this.guessCollection, guess)
+    return {
+      ...guess,
+      id: guessDoc.id,
+    };
   }
 
   getCurrentSession(): GameSession | undefined {
@@ -81,19 +87,34 @@ export class GameSessionService {
   async getCurrentSessionProgress() {
     const session = this.getCurrentSession();
     const imageCount = await this.imageService.getImageCount();
-    return Promise.resolve(session ? {
-      imageCount,
-      guessCount: this.guesses.filter(g => g.sessionId === session.id).length,
-    } : undefined)
-  }
-
-  findGuess({ sessionId, imageId }: { sessionId?: string, imageId: string }) {
-    const session = this.sessions.find(s => s.id === sessionId) ?? this.getCurrentSession();
     if (!session) {
-      return null;
+      return undefined;
     }
 
-    return this.guesses.find(g => g.imageId === imageId && g.sessionId === session.id);
+    const guessQuery = query(this.guessCollection, where("sessionId", "==", session.id));
+    const guessDocCount = await getCountFromServer(guessQuery);
+
+    return {
+      imageCount,
+      guessCount: guessDocCount.data().count,
+    };
+  }
+
+  async findGuess({ sessionId, imageId }: { sessionId?: string, imageId: string }) {
+    const session = this.sessions.find(s => s.id === sessionId) ?? this.getCurrentSession();
+    if (!session) {
+      return undefined;
+    }
+
+    const guessQuery = query(this.guessCollection, where("imageId", "==", session.id));
+    const guessDocs = await getDocs(guessQuery);
+    if (guessDocs.empty) {
+      return undefined;
+    }
+
+    const guessDoc = guessDocs.docs[0];
+    // TODO: use converters here
+    return guessDoc.data() as unknown as Guess;
   }
 
   async getSessionSummary(sessionId: string) {
@@ -102,7 +123,9 @@ export class GameSessionService {
       return undefined;
     }
 
-    const guesses = this.guesses.filter(g => g.sessionId === sessionId);
+    const guessQuery = query(this.guessCollection, where("imageId", "==", session.id));
+    const guesses = await getDocsFromServer(guessQuery) as unknown as Guess[];
+
     return {
       guesses,
       meta: {

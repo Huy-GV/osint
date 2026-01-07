@@ -33,15 +33,7 @@ export class GuessImagePage {
   answer = resource({
     params: () => ({ id: this.id() }),
     loader: ({ params: { id }}) => {
-      const existingGuess = this.gameService.findGuess({ imageId: id! });
-      return Promise.resolve(existingGuess ? {
-        latitude: existingGuess.imageLatitude,
-        longitude: existingGuess.imageLongitude,
-        distanceMeters: existingGuess.distanceMeters,
-        guessLatitude: existingGuess.latitude,
-        guessLongitude: existingGuess.longitude,
-        score: existingGuess.score,
-      } : undefined);
+      return this.gameService.findGuess({ imageId: id! });
     }
   })
 
@@ -76,8 +68,8 @@ export class GuessImagePage {
     }
 
     const bounds = new google.maps.LatLngBounds();
+    bounds.extend(new google.maps.LatLng({ lat: this.answer.value().imageLatitude, lng: this.answer.value().imageLongitude }));
     bounds.extend(new google.maps.LatLng({ lat: this.answer.value().latitude, lng: this.answer.value().longitude }));
-    bounds.extend(new google.maps.LatLng({ lat: this.answer.value().guessLatitude, lng: this.answer.value().guessLongitude }));
     map.fitBounds(bounds);
   }
 

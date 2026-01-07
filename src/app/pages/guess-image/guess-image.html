@@ -18,21 +18,21 @@
                 (mapInitialized)="onMapReady($event)">
 
                 <map-marker
-                    [position]="{ lat: answer.value().latitude, lng: answer.value().longitude! }"
+                    [position]="{ lat: answer.value().imageLatitude, lng: answer.value().imageLongitude }"
                     [options]="{ draggable: false, title: 'Actual Location' }"
                     [label]="{ text: 'A', color: 'white', fontWeight: 'bold' }"
                 ></map-marker>
 
                 <map-marker
-                    [position]="{ lat: answer.value().guessLatitude, lng: answer.value().guessLongitude! }"
+                    [position]="{ lat: answer.value().latitude, lng: answer.value().longitude! }"
                     [options]="{ draggable: false, title: 'Your Guess' }"
                     [label]="{ text: 'G', color: 'white', fontWeight: 'bold' }"
                 ></map-marker>
 
                 <map-polyline
                     [path]="[
-                        { lat: answer.value().latitude, lng: answer.value().longitude },
-                        { lat: answer.value().guessLatitude, lng: answer.value().guessLongitude }
+                        { lat: answer.value().imageLatitude, lng: answer.value().imageLongitude },
+                        { lat: answer.value().latitude, lng: answer.value().longitude }
                     ]"
                     [options]="{ strokeColor: '#9333ea', strokeOpacity: 1.0, strokeWeight: 4, icons: [{icon: {path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 4}, offset: '0', repeat: '20px'}] }"
                 ></map-polyline>
