@@ -11,7 +11,6 @@ import { addDoc, collection, doc, getCountFromServer, getDoc, getDocs, query, se
   providedIn: 'root',
 })
 export class GameSessionService {
-
   private readonly imageService = inject(ImageService);
   private readonly mapService = inject(MapService);
   private readonly scoreService = inject(ScoreService);
@@ -91,7 +90,6 @@ export class GameSessionService {
   async endCurrentSession() {
     const current = await this.getCurrentSession();
     if (current) {
-      current.endedAt = new Date();
       const docRef = doc(this.firestore, `sessions/${current.id}`);
       await updateDoc(docRef, { endedAt: serverTimestamp() });
     }
@@ -152,10 +150,14 @@ export class GameSessionService {
       guesses,
       meta: {
         // TODO: review the timestamp values here
-        gameStartedAt: session.startedAt,
-        gameEndAt: session.endedAt,
-        totalScore: guesses.map(g => g.score).reduce((sum, score) => sum + score, 0),
-        averageDistance: guesses.map(g => g.distanceMeters).reduce((sum, distanceMeters) => sum + distanceMeters, 0) / guesses.length,
+        gameStartedAt: session.startedAt.toDate(),
+        gameEndAt: session.endedAt?.toDate(),
+        totalScore: guesses
+          .map(g => g.score)
+          .reduce((sum, score) => sum + score, 0),
+        averageDistance: guesses
+          .map(g => g.distanceMeters)
+          .reduce((sum, distanceMeters) => sum + distanceMeters, 0) / guesses.length,
       }
     }
   }

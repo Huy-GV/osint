@@ -1,4 +1,4 @@
-import { Component, inject, resource, signal } from '@angular/core';
+import { Component, inject, resource } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { GameSessionService } from '../../services/game-session.service';
 
