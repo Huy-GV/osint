@@ -1,0 +1,34 @@
+{
+  "firestore": {
+    "database": "(default)",
+    "location": "australia-southeast1",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "hosting": {
+    "public": "dist/osint/browser",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "emulators": {
+    "firestore": {
+      "port": 8000
+    },
+    "hosting": {
+      "port": 5000
+    },
+    "ui": {
+      "enabled": true
+    },
+    "singleProjectMode": true
+  }
+}
