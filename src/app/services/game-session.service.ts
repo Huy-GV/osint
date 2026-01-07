@@ -17,8 +17,11 @@ export class GameSessionService {
   private readonly scoreService = inject(ScoreService);
   private readonly firestore = inject(Firestore);
 
-  private guessCollection = collection(this.firestore, "guesses");
   private sessionCollection = collection(this.firestore, "sessions");
+
+  private getGuessCollection(sessionId: string) {
+    return collection(this.firestore, `sessions/${sessionId}/guesses`);
+  }
 
   async confirmGuess(imageId: string, longitude: number, latitude: number) {
     const image = this.imageService.getImageById(imageId);
@@ -49,7 +52,8 @@ export class GameSessionService {
       createdAt: new Date(),
     }
 
-    const guessDoc = await addDoc(this.guessCollection, guess)
+    const guessCollection = this.getGuessCollection(session.id);
+    const guessDoc = await addDoc(guessCollection, guess)
     return {
       ...guess,
       id: guessDoc.id,
@@ -100,7 +104,7 @@ export class GameSessionService {
       return undefined;
     }
 
-    const guessQuery = query(this.guessCollection, where("sessionId", "==", session.id));
+    const guessQuery = query(this.getGuessCollection(session.id));
     const guessDocCount = await getCountFromServer(guessQuery);
 
     return {
@@ -116,10 +120,10 @@ export class GameSessionService {
     }
 
     const guessQuery = query(
-      this.guessCollection,
+      this.getGuessCollection(session.id),
       where("imageId", "==", imageId),
-      where("sessionId", "==", session.id),
     );
+
     const guessDocs = await getDocs(guessQuery);
     if (guessDocs.empty) {
       return undefined;
@@ -139,7 +143,7 @@ export class GameSessionService {
       return undefined;
     }
 
-    const guessQuery = query(this.guessCollection, where("sessionId", "==", sessionDoc.id));
+    const guessQuery = query(this.getGuessCollection(sessionDoc.id));
     const guessDocs = await getDocs(guessQuery);
     const guesses = guessDocs.docs.map(d => ({ ...d.data(), id: d.id, } as Guess));
     const session = sessionDoc.data() as GameSession;

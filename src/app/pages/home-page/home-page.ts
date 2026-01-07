@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, resource, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { GameSessionService } from '../../services/game-session.service';
 
@@ -12,7 +12,9 @@ export class HomePage {
   private readonly gameService = inject(GameSessionService);
   private readonly router = inject(Router);
 
-  currentSession = signal(this.gameService.getCurrentSession());
+  currentSession = resource({
+    loader: () => this.gameService.getCurrentSession()
+  })
 
   startNewSession() {
     this.gameService.startNewSession();
