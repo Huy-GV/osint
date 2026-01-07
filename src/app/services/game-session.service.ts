@@ -5,7 +5,7 @@ import { ImageService } from './image.service';
 import { GameSession } from '../models/game-session';
 import { Guess } from '../models/guess';
 import { Firestore } from '@angular/fire/firestore';
-import { addDoc, collection, getCountFromServer, getDoc, getDocs, getDocsFromServer, query, where } from 'firebase/firestore';
+import { addDoc, collection, doc, getCountFromServer, getDoc, getDocs, query, serverTimestamp, updateDoc, where } from 'firebase/firestore';
 
 @Injectable({
   providedIn: 'root',
@@ -16,9 +16,6 @@ export class GameSessionService {
   private readonly mapService = inject(MapService);
   private readonly scoreService = inject(ScoreService);
   private readonly firestore = inject(Firestore);
-
-  // TODO: move these to Firebase
-  private sessions: GameSession[] = [];
 
   private guessCollection = collection(this.firestore, "guesses");
   private sessionCollection = collection(this.firestore, "sessions");
@@ -35,7 +32,7 @@ export class GameSessionService {
     );
 
     const score = this.scoreService.calculateScore(distance);
-    const session = this.getCurrentSession();
+    const session = await this.getCurrentSession();
     if (!session) {
       throw new Error('Session not found');
     }
@@ -59,33 +56,45 @@ export class GameSessionService {
     };
   }
 
-  getCurrentSession(): GameSession | undefined {
-    return this.sessions.find(s => !s.endedAt);
+  async getCurrentSession() {
+    const sessionQuery = query(this.sessionCollection, where("endedAt", "==", null));
+    const sessionDocs = await getDocs(sessionQuery);
+    if (sessionDocs.empty) {
+      return undefined;
+    }
+
+    return {
+      ...sessionDocs.docs[0].data(),
+      id: sessionDocs.docs[0].id,
+    } as GameSession;
   }
 
-  startNewSession(): GameSession {
-    this.endCurrentSession();
+  async startNewSession() {
+    await this.endCurrentSession();
 
     const newSession = {
-      startedAt: new Date(),
-      id: crypto.randomUUID(),
+      startedAt: serverTimestamp(),
+      endedAt: null,
     }
 
-    this.sessions.push(newSession);
-    return newSession;
+    const session = await addDoc(this.sessionCollection, newSession);
+    return {
+      ...newSession,
+      id: session.id,
+    };
   }
 
-  endCurrentSession() {
-    const current = this.sessions.find(s => s.endedAt === null);
+  async endCurrentSession() {
+    const current = await this.getCurrentSession();
     if (current) {
       current.endedAt = new Date();
+      const docRef = doc(this.firestore, `sessions/${current.id}`);
+      await updateDoc(docRef, { endedAt: serverTimestamp() });
     }
-
-    return Promise.resolve();
   }
 
   async getCurrentSessionProgress() {
-    const session = this.getCurrentSession();
+    const session = await this.getCurrentSession();
     const imageCount = await this.imageService.getImageCount();
     if (!session) {
       return undefined;
@@ -100,13 +109,17 @@ export class GameSessionService {
     };
   }
 
-  async findGuess({ sessionId, imageId }: { sessionId?: string, imageId: string }) {
-    const session = this.sessions.find(s => s.id === sessionId) ?? this.getCurrentSession();
+  async findGuess({ imageId }: { imageId: string }) {
+    const session = await this.getCurrentSession();
     if (!session) {
       return undefined;
     }
 
-    const guessQuery = query(this.guessCollection, where("imageId", "==", session.id));
+    const guessQuery = query(
+      this.guessCollection,
+      where("imageId", "==", imageId),
+      where("sessionId", "==", session.id),
+    );
     const guessDocs = await getDocs(guessQuery);
     if (guessDocs.empty) {
       return undefined;
@@ -114,21 +127,27 @@ export class GameSessionService {
 
     const guessDoc = guessDocs.docs[0];
     // TODO: use converters here
-    return guessDoc.data() as unknown as Guess;
+    return {
+      ...guessDoc.data(),
+      id: guessDoc.id,
+    } as unknown as Guess;
   }
 
   async getSessionSummary(sessionId: string) {
-    const session = this.sessions.find(s => s.id === sessionId);
-    if (!session) {
+    const sessionDoc = await getDoc(doc(this.firestore, `sessions/${sessionId}`));
+    if (!sessionDoc.exists()) {
       return undefined;
     }
 
-    const guessQuery = query(this.guessCollection, where("imageId", "==", session.id));
-    const guesses = await getDocsFromServer(guessQuery) as unknown as Guess[];
+    const guessQuery = query(this.guessCollection, where("sessionId", "==", sessionDoc.id));
+    const guessDocs = await getDocs(guessQuery);
+    const guesses = guessDocs.docs.map(d => ({ ...d.data(), id: d.id, } as Guess));
+    const session = sessionDoc.data() as GameSession;
 
     return {
       guesses,
       meta: {
+        // TODO: review the timestamp values here
         gameStartedAt: session.startedAt,
         gameEndAt: session.endedAt,
         totalScore: guesses.map(g => g.score).reduce((sum, score) => sum + score, 0),
