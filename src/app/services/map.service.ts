@@ -17,6 +17,6 @@ export class MapService {
   }
 
   renderedLatitude(value: number) {
-    return value > 0 ? Math.min(value, MapService.MERCATOR_LATITUDE_LIMIT) : Math.max(value, MapService.MERCATOR_LATITUDE_LIMIT);
+    return Math.min(Math.max(value, -MapService.MERCATOR_LATITUDE_LIMIT), MapService.MERCATOR_LATITUDE_LIMIT);
   }
 }

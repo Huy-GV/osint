@@ -45,11 +45,12 @@ export class GuessImagePage {
 
   readonly displayMarkers = computed(() => {
     if (this.answer.hasValue()) {
+      const { longitude, latitude, imageLatitude, imageLongitude } = this.answer.value();
       return {
-        imageLatitude: this.mapService.renderedLatitude(this.answer.value().imageLatitude),
-        imageLongitude: this.answer.value().imageLatitude,
-        guessLatitude:  this.mapService.renderedLatitude(this.answer.value().latitude),
-        guessLongitude: this.answer.value().longitude,
+        imageLatitude: this.mapService.renderedLatitude(imageLatitude),
+        imageLongitude: imageLongitude,
+        guessLatitude:  this.mapService.renderedLatitude(latitude),
+        guessLongitude: longitude,
       }
     }
 
