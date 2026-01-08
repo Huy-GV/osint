@@ -25,11 +25,25 @@ export class GuessImagePage {
     this.activatedRoute.params.pipe(map(p => p['id'] as string))
   );
 
-  image = this.imageService.getImageResource(this.id);
-  answer = this.gameService.getGuessResource(this.id);
-  sessionProgress = this.gameService.sessionProgress;
+  readonly image = this.imageService.getImageResource(this.id);
+  readonly answer = this.gameService.getGuessResource(this.id);
+  readonly sessionProgress = this.gameService.sessionProgress;
+  readonly mapOptions: google.maps.MapOptions = {
+    minZoom: 2,
+    maxZoom: 20,
+    restriction: {
+      latLngBounds: {
+        north: 89,
+        south: -89,
+        west: -180,
+        east: 180,
+      },
+      strictBounds: true,
+    },
+    disableDefaultUI: true,
+  };
 
-  displayMarkers = computed(() => {
+  readonly displayMarkers = computed(() => {
     if (this.answer.hasValue()) {
       return {
         imageLatitude: this.mapService.renderedLatitude(this.answer.value().imageLatitude),
@@ -48,9 +62,9 @@ export class GuessImagePage {
   });
 
 
-  canNavigateToSummary = computed(() => this.sessionProgress.hasValue() && this.sessionProgress.value().guessCount >= this.sessionProgress.value().imageCount);
+  readonly canNavigateToSummary = computed(() => this.sessionProgress.hasValue() && this.sessionProgress.value().guessCount >= this.sessionProgress.value().imageCount);
 
-  form = new FormGroup({
+  readonly form = new FormGroup({
     latitude: new FormControl(null, [Validators.required, Validators.min(-90), Validators.max(90)]),
     longitude: new FormControl(null, [Validators.required, Validators.min(-180), Validators.max(180)]),
   });
