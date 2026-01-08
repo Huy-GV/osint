@@ -22,14 +22,22 @@ export class GameSessionService {
     return collection(this.firestore, `sessions/${sessionId}/guesses`);
   }
 
-  async confirmGuess(imageId: string, longitude: number, latitude: number) {
+  async confirmGuess({
+    imageId,
+    longitude,
+    latitude
+  }: {
+    imageId: string,
+    longitude: number,
+    latitude: number
+  }) {
     const image = this.imageService.getImageById(imageId);
     if (!image) {
       throw new Error('Image not found');
     }
 
     const distance = this.mapService.calculateDistanceMeters(
-      { latitude: latitude, longitude: longitude },
+      { latitude, longitude },
       { latitude: image.latitude, longitude: image.longitude }
     );
 

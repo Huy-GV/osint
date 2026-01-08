@@ -6,6 +6,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { GameSessionService } from '../../services/game-session.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
+import { MapService } from '../../services/map.service';
 
 @Component({
   selector: 'app-guess-image',
@@ -18,6 +19,7 @@ export class GuessImagePage {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly gameService = inject(GameSessionService);
   private readonly router = inject(Router);
+  private readonly mapService = inject(MapService);
 
   private readonly id = toSignal(
     this.activatedRoute.params.pipe(map(p => p['id'] as string))
@@ -37,13 +39,31 @@ export class GuessImagePage {
     }
   });
 
+  displayMarkers = computed(() => {
+    if (this.answer.hasValue()) {
+      return {
+        imageLatitude: this.mapService.renderedLatitude(this.answer.value().imageLatitude),
+        imageLongitude: this.answer.value().imageLatitude,
+        guessLatitude:  this.mapService.renderedLatitude(this.answer.value().latitude),
+        guessLongitude: this.answer.value().longitude,
+      }
+    }
+
+    return {
+      imageLatitude: 0,
+      imageLongitude: 0,
+      guessLatitude: 0,
+      guessLongitude: 0,
+    }
+  });
+
   sessionProgress = resource({
     loader: () => {
       return this.gameService.getCurrentSessionProgress();
     }
   });
 
-  canNavigateToSummary = computed(() => this.sessionProgress.hasValue() && this.sessionProgress.value().guessCount === this.sessionProgress.value().imageCount);
+  canNavigateToSummary = computed(() => this.sessionProgress.hasValue() && this.sessionProgress.value().guessCount >= this.sessionProgress.value().imageCount);
 
   form = new FormGroup({
     latitude: new FormControl(null, [Validators.required, Validators.min(-90), Validators.max(90)]),
@@ -54,7 +74,7 @@ export class GuessImagePage {
     if (this.form.valid) {
       const latitude = this.form.get('latitude')!.value!;
       const longitude = this.form.get('longitude')!.value!;
-      await this.gameService.confirmGuess(this.id()!, longitude, latitude);
+      await this.gameService.confirmGuess({ imageId: this.id()!, longitude, latitude });
       this.answer.reload();
       this.sessionProgress.reload();
     }

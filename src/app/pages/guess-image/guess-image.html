@@ -18,23 +18,28 @@
                 (mapInitialized)="onMapReady($event)">
 
                 <map-marker
-                    [position]="{ lat: answer.value().imageLatitude, lng: answer.value().imageLongitude }"
+                    [position]="{ lat: displayMarkers().imageLatitude, lng: displayMarkers().imageLongitude }"
                     [options]="{ draggable: false, title: 'Actual Location' }"
                     [label]="{ text: 'A', color: 'white', fontWeight: 'bold' }"
                 ></map-marker>
 
                 <map-marker
-                    [position]="{ lat: answer.value().latitude, lng: answer.value().longitude! }"
+                    [position]="{ lat: displayMarkers().guessLatitude, lng: displayMarkers().guessLongitude }"
                     [options]="{ draggable: false, title: 'Your Guess' }"
                     [label]="{ text: 'G', color: 'white', fontWeight: 'bold' }"
                 ></map-marker>
 
                 <map-polyline
                     [path]="[
-                        { lat: answer.value().imageLatitude, lng: answer.value().imageLongitude },
-                        { lat: answer.value().latitude, lng: answer.value().longitude }
+                        { lat: displayMarkers().imageLatitude, lng: displayMarkers().imageLongitude },
+                        { lat: displayMarkers().guessLatitude, lng: displayMarkers().guessLongitude },
                     ]"
-                    [options]="{ strokeColor: '#9333ea', strokeOpacity: 1.0, strokeWeight: 4, icons: [{icon: {path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 4}, offset: '0', repeat: '20px'}] }"
+                    [options]="{
+                        strokeColor: '#9333ea',
+                        strokeOpacity: 1.0,
+                        strokeWeight: 4,
+                        icons: [{icon: {path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 4}, offset: '0', repeat: '20px'}]
+                    }"
                 ></map-polyline>
             </google-map>
         }
@@ -49,6 +54,7 @@
                 <div class="flex flex-col gap-1">
                     <label class="text-xs font-bold uppercase text-gray-400 ml-1">Latitude</label>
                     <input
+                        [disabled]="form.invalid || answer.hasValue()"
                         formControlName="latitude"
                         type="number"
                         step="0.0000001"
@@ -69,6 +75,7 @@
                 <div class="flex flex-col gap-1">
                     <label class="text-xs font-bold uppercase text-gray-400 ml-1">Longitude</label>
                     <input
+                        [disabled]="form.invalid || answer.hasValue()"
                         formControlName="longitude"
                         type="number"
                         step="0.0000001"
