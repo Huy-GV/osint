@@ -1,4 +1,4 @@
-import { Component, inject, resource } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { GameSessionService } from '../../services/game-session.service';
 
@@ -12,9 +12,22 @@ export class HomePage {
   private readonly gameService = inject(GameSessionService);
   private readonly router = inject(Router);
 
-  currentSession = resource({
-    loader: () => this.gameService.getCurrentSession()
-  })
+  readonly currentSession = this.gameService.currentSessionResource;
+  readonly activeTooltip = signal<string | null>(null);
+  readonly helpContent: Record<string, { title: string, detail: string }> = {
+    INSPECT: {
+      title: 'Analyse',
+      detail: 'Examine the provided image for geographical clues: shadows, vegetation, architecture, or license plates'
+    },
+    LOCATE: {
+      title: 'Triangulate',
+      detail: 'Use the street layout and landmarks to pinpoint the exact latitude and longitude'
+    },
+    EXTRACT: {
+      title: 'Score',
+      detail: 'Perfect (0m): 15pt | <10m: 9pt | <30m: 6pt | <50m: 0pt'
+    }
+  };
 
   async startNewSession() {
     await this.gameService.startNewSession();
