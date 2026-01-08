@@ -1,4 +1,4 @@
-import { Component, computed, inject, resource } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { ImageService } from '../../services/image.service';
@@ -25,19 +25,9 @@ export class GuessImagePage {
     this.activatedRoute.params.pipe(map(p => p['id'] as string))
   );
 
-  image = resource({
-    params: () => ({ id: this.id() }),
-    loader: ({ params: { id } }) => {
-      return this.imageService.getAnonymousImageById(id!);
-    }
-  });
-
-  answer = resource({
-    params: () => ({ id: this.id() }),
-    loader: ({ params: { id } }) => {
-      return this.gameService.findGuess({ imageId: id! });
-    }
-  });
+  image = this.imageService.getImageResource(this.id);
+  answer = this.gameService.getGuessResource(this.id);
+  sessionProgress = this.gameService.sessionProgress;
 
   displayMarkers = computed(() => {
     if (this.answer.hasValue()) {
@@ -57,11 +47,6 @@ export class GuessImagePage {
     }
   });
 
-  sessionProgress = resource({
-    loader: () => {
-      return this.gameService.getCurrentSessionProgress();
-    }
-  });
 
   canNavigateToSummary = computed(() => this.sessionProgress.hasValue() && this.sessionProgress.value().guessCount >= this.sessionProgress.value().imageCount);
 

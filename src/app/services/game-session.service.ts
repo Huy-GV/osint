@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, resource, Signal } from '@angular/core';
 import { MapService } from './map.service';
 import { ScoreService } from './score.service';
 import { ImageService } from './image.service';
@@ -21,6 +21,12 @@ export class GameSessionService {
   private getGuessCollection(sessionId: string) {
     return collection(this.firestore, `sessions/${sessionId}/guesses`);
   }
+
+  sessionProgress = resource({
+    loader: () => {
+      return this.getCurrentSessionProgress();
+    }
+  });
 
   async confirmGuess({
     imageId,
@@ -167,5 +173,14 @@ export class GameSessionService {
           .reduce((sum, distanceMeters) => sum + distanceMeters, 0) / guesses.length,
       }
     }
+  }
+
+  getGuessResource(id: Signal<string | undefined>) {
+    return resource({
+      params: () => ({ id: id() }),
+      loader: ({ params: { id } }) => {
+        return id ? this.findGuess({ imageId: id! }) : Promise.resolve(undefined);
+      }
+    });
   }
 }

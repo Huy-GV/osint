@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, resource, Signal } from '@angular/core';
 import { AnonymousImage, Image } from '../models/image';
 import { MapService } from './map.service';
 import { ScoreService } from './score.service';
@@ -68,5 +68,14 @@ export class ImageService {
       prevId,
       nextId
     };
+  }
+
+  getImageResource(id: Signal<string | undefined>) {
+    return resource({
+      params: () => ({ id: id() }),
+      loader: ({ params: { id } }) => {
+        return id ? this.getAnonymousImageById(id) : Promise.resolve(undefined);
+      }
+    });
   }
 }
