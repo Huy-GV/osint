@@ -22,10 +22,12 @@ export class GameSessionService {
     return collection(this.firestore, `sessions/${sessionId}/guesses`);
   }
 
-  sessionProgress = resource({
-    loader: () => {
-      return this.getCurrentSessionProgress();
-    }
+  readonly sessionProgress = resource({
+    loader: () => this.getCurrentSessionProgress(),
+  });
+
+  readonly currentSessionResource = resource({
+    loader: () => this.getCurrentSession(),
   });
 
   async confirmGuess({
