@@ -21,13 +21,18 @@ export class GuessImagePage {
   private readonly router = inject(Router);
   private readonly mapService = inject(MapService);
 
-  private readonly id = toSignal(
+  private readonly imageId = toSignal(
     this.activatedRoute.params.pipe(map(p => p['id'] as string))
   );
 
-  readonly image = this.imageService.getImageResource(this.id);
-  readonly answer = this.gameService.getGuessResource(this.id);
-  readonly sessionProgress = this.gameService.sessionProgress;
+  private readonly sessionId = toSignal(
+    this.activatedRoute.params.pipe(map(p => p['sessionId'] as string))
+  );
+
+  readonly image = this.imageService.getImageResource(this.imageId);
+  readonly answer = this.gameService.getGuessResource(this.imageId, this.sessionId);
+  readonly sessionProgress = this.gameService.getSessionProgressResource(this.imageId, this.sessionId);
+
   readonly mapOptions: google.maps.MapOptions = {
     minZoom: 2,
     maxZoom: 20,
@@ -74,7 +79,7 @@ export class GuessImagePage {
     if (this.form.valid) {
       const latitude = this.form.get('latitude')!.value!;
       const longitude = this.form.get('longitude')!.value!;
-      await this.gameService.confirmGuess({ imageId: this.id()!, longitude, latitude });
+      await this.gameService.confirmGuess({ imageId: this.imageId()!, longitude, latitude, sessionId: this.sessionId()! });
       this.answer.reload();
       this.sessionProgress.reload();
     }
@@ -82,7 +87,7 @@ export class GuessImagePage {
 
   async navigateToSummary() {
     if (this.canNavigateToSummary()) {
-      this.router.navigate(["gameplay", "summary", this.sessionProgress.value()!.sessionId]);
+      this.router.navigate(["gameplay", this.sessionId(), "summary"]);
     }
   }
 
@@ -100,7 +105,7 @@ export class GuessImagePage {
   onImageClicked(id: string | null) {
     if (id) {
       this.form.reset();
-      this.router.navigate(["gameplay", "image", id]);
+      this.router.navigate(["gameplay", this.sessionId(), "image", id]);
     }
   }
 }

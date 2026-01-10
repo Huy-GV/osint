@@ -1,18 +1,29 @@
 import { Component, inject, resource } from '@angular/core';
 import { ImageService } from '../../services/image.service';
-import { RouterLink } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 
 @Component({
   selector: 'app-gameplay-page',
-  imports: [RouterLink],
   templateUrl: './gameplay-page.html',
   styleUrl: './gameplay-page.css',
 })
 export class GameplayPage {
   private readonly imageService = inject(ImageService);
+  private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly sessionId = toSignal(
+    this.activatedRoute.params.pipe(map(p => p['sessionId'] as string))
+  );
+
   images = resource({
     loader: () => {
       return this.imageService.getAllImages();
     }
-  })
+  });
+
+  openImage(imageId: string) {
+    this.router.navigate(["gameplay", this.sessionId(), "image", imageId])
+  }
 }

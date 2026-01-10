@@ -1,6 +1,8 @@
+import { Timestamp } from "firebase/firestore";
+
 export interface Guess {
   id: string;
-  createdAt: Date;
+  createdAt: Timestamp;
   imageId: string;
   sessionId: string;
   longitude: number;

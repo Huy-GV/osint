@@ -1,10 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { GameSessionService } from '../../services/game-session.service';
 
 @Component({
   selector: 'app-home-page',
-  imports: [RouterLink],
   templateUrl: './home-page.html',
   styleUrl: './home-page.css',
 })
@@ -12,7 +11,8 @@ export class HomePage {
   private readonly gameService = inject(GameSessionService);
   private readonly router = inject(Router);
 
-  readonly currentSession = this.gameService.currentSessionResource;
+  readonly cachedSession = this.gameService.cachedSessionResource;
+
   readonly activeTooltip = signal<string | null>(null);
   readonly helpContent: Record<string, { title: string, detail: string }> = {
     INSPECT: {
@@ -30,7 +30,13 @@ export class HomePage {
   };
 
   async startNewSession() {
-    await this.gameService.startNewSession();
-    this.router.navigate(["gameplay"]);
+    const { id } = await this.gameService.startNewSession();
+    this.router.navigate(["gameplay", id]);
+  }
+
+  async resumeSession() {
+    if (this.cachedSession.hasValue()) {
+      this.router.navigate(["gameplay", this.cachedSession.value().sessionId]);
+    }
   }
 }
