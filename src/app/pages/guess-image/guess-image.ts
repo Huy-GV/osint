@@ -82,6 +82,7 @@ export class GuessImagePage {
       await this.gameService.confirmGuess({ imageId: this.imageId()!, longitude, latitude, sessionId: this.sessionId()! });
       this.answer.reload();
       this.sessionProgress.reload();
+      this.form.disable();
     }
   }
 
