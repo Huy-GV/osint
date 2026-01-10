@@ -15,19 +15,19 @@ export class Summary {
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly gameService = inject(GameSessionService);
-  private readonly id = toSignal(
-    this.activatedRoute.params.pipe(map(p => p['id'] as string))
+  private readonly sessionId = toSignal(
+    this.activatedRoute.params.pipe(map(p => p['sessionId'] as string))
   );
 
   summary = resource({
-    params: () => ({ id: this.id()! }),
-    loader: ({ params: { id } }) => {
-      return this.gameService.getSessionSummary(id!);
+    params: () => ({ sessionId: this.sessionId()! }),
+    loader: ({ params: { sessionId } }) => {
+      return this.gameService.getSessionSummary(sessionId!);
     }
   });
 
   async startNewGame() {
-    await this.gameService.endCurrentSession();
+    await this.gameService.endSession(this.sessionId()!);
     this.router.navigate(["home"]);
   }
 }

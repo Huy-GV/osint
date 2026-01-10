@@ -23,10 +23,6 @@ export class GameSessionService {
     return collection(this.firestore, `sessions/${sessionId}/guesses`);
   }
 
-  readonly currentSessionResource = resource({
-    loader: () => this.getCurrentSession(),
-  });
-
   readonly cachedSessionResource = resource({
     loader: async () => {
       const cachedId = localStorage.getItem(GameSessionService.STORAGE_KEY);
@@ -46,10 +42,12 @@ export class GameSessionService {
 
   async confirmGuess({
     imageId,
+    sessionId,
     longitude,
     latitude
   }: {
     imageId: string,
+    sessionId: string,
     longitude: number,
     latitude: number
   }) {
@@ -58,12 +56,7 @@ export class GameSessionService {
       throw new Error('Image not found');
     }
 
-    const session = await this.getCurrentSession();
-    if (!session) {
-      throw new Error('Session not found');
-    }
-
-    const existingGuess = await this.findGuess({ imageId, sessionId: session.id });
+    const existingGuess = await this.findGuess({ imageId, sessionId: sessionId });
     if (existingGuess) {
       throw new Error("Image already contains guess");
     }
@@ -76,7 +69,7 @@ export class GameSessionService {
     const score = this.scoreService.calculateScore(distance);
     const guess = {
       imageId,
-      sessionId: session.id,
+      sessionId,
       longitude,
       latitude,
       imageLongitude: image.longitude,
@@ -86,7 +79,7 @@ export class GameSessionService {
       createdAt: serverTimestamp(),
     };
 
-    const guessCollection = this.getGuessCollection(session.id);
+    const guessCollection = this.getGuessCollection(sessionId);
     const guessDoc = await addDoc(guessCollection, guess)
     return {
       ...guess,
@@ -94,22 +87,7 @@ export class GameSessionService {
     };
   }
 
-  async getCurrentSession() {
-    const sessionQuery = query(this.sessionCollection, where("endedAt", "==", null));
-    const sessionDocs = await getDocs(sessionQuery);
-    if (sessionDocs.empty) {
-      return undefined;
-    }
-
-    return {
-      ...sessionDocs.docs[0].data(),
-      id: sessionDocs.docs[0].id,
-    } as GameSession;
-  }
-
   async startNewSession() {
-    await this.endCurrentSession();
-
     const newSession = {
       startedAt: serverTimestamp(),
       endedAt: null,
@@ -123,39 +101,30 @@ export class GameSessionService {
     };
   }
 
-  async endCurrentSession() {
-    const current = await this.getCurrentSession();
-    if (current) {
-      const docRef = doc(this.firestore, `sessions/${current.id}`);
-      await updateDoc(docRef, { endedAt: serverTimestamp() });
-    }
+  async endSession(sessionId: string) {
+    const docRef = doc(this.firestore, `sessions/${sessionId}`);
+    await updateDoc(docRef, { endedAt: serverTimestamp() });
   }
 
-  async getCurrentSessionProgress() {
-    const session = await this.getCurrentSession();
+  async getCurrentSessionProgress(sessionId: string) {
     const imageCount = await this.imageService.getImageCount();
-    if (!session) {
-      return undefined;
-    }
-
-    const guessQuery = query(this.getGuessCollection(session.id));
+    const guessQuery = query(this.getGuessCollection(sessionId));
     const guessDocCount = await getCountFromServer(guessQuery);
 
     return {
-      sessionId: session.id,
+      sessionId,
       imageCount,
       guessCount: guessDocCount.data().count,
     };
   }
 
-  async findGuess({ imageId, sessionId }: { imageId: string; sessionId?: string; }) {
-    const guessSessionId = sessionId ?? (await this.getCurrentSession())?.id;
-    if (!guessSessionId) {
+  async findGuess({ imageId, sessionId }: { imageId: string; sessionId: string; }) {
+    if (!sessionId) {
       return undefined;
     }
 
     const guessQuery = query(
-      this.getGuessCollection(guessSessionId),
+      this.getGuessCollection(sessionId),
       where("imageId", "==", imageId),
     );
 
@@ -198,20 +167,20 @@ export class GameSessionService {
     }
   }
 
-  getGuessResource(id: Signal<string | undefined>) {
+  getGuessResource(imageId: Signal<string | undefined>, sessionId: Signal<string | undefined>) {
     return resource({
-      params: () => ({ id: id() }),
-      loader: ({ params: { id } }) => {
-        return id ? this.findGuess({ imageId: id! }) : Promise.resolve(undefined);
+      params: () => ({ imageId: imageId(), sessionId: sessionId() }),
+      loader: ({ params: { imageId, sessionId } }) => {
+        return imageId && sessionId ? this.findGuess({ imageId, sessionId }) : Promise.resolve(undefined);
       }
     });
   }
 
-  getSessionProgressResource(imageId: Signal<string | undefined>) {
+  getSessionProgressResource(imageId: Signal<string | undefined>, sessionId: Signal<string | undefined>) {
     return resource({
-      params: () => ({ imageId: imageId() }),
-      loader: ({ params: { imageId }}) => {
-        return imageId ? this.getCurrentSessionProgress() : Promise.resolve(undefined);
+      params: () => ({ imageId: imageId(), sessionId: sessionId() }),
+      loader: ({ params: { imageId, sessionId }}) => {
+        return imageId && sessionId ? this.getCurrentSessionProgress(sessionId) : Promise.resolve(undefined);
       }
     });
   }

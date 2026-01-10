@@ -30,8 +30,8 @@ export class GuessImagePage {
   );
 
   readonly image = this.imageService.getImageResource(this.imageId);
-  readonly answer = this.gameService.getGuessResource(this.imageId);
-  readonly sessionProgress = this.gameService.getSessionProgressResource(this.imageId);
+  readonly answer = this.gameService.getGuessResource(this.imageId, this.sessionId);
+  readonly sessionProgress = this.gameService.getSessionProgressResource(this.imageId, this.sessionId);
 
   readonly mapOptions: google.maps.MapOptions = {
     minZoom: 2,
@@ -79,7 +79,7 @@ export class GuessImagePage {
     if (this.form.valid) {
       const latitude = this.form.get('latitude')!.value!;
       const longitude = this.form.get('longitude')!.value!;
-      await this.gameService.confirmGuess({ imageId: this.imageId()!, longitude, latitude });
+      await this.gameService.confirmGuess({ imageId: this.imageId()!, longitude, latitude, sessionId: this.sessionId()! });
       this.answer.reload();
       this.sessionProgress.reload();
     }
@@ -87,7 +87,7 @@ export class GuessImagePage {
 
   async navigateToSummary() {
     if (this.canNavigateToSummary()) {
-      this.router.navigate(["gameplay", "summary", this.sessionProgress.value()!.sessionId]);
+      this.router.navigate(["gameplay", this.sessionId(), "summary"]);
     }
   }
 
@@ -105,7 +105,7 @@ export class GuessImagePage {
   onImageClicked(id: string | null) {
     if (id) {
       this.form.reset();
-      this.router.navigate(["gameplay", "image", id]);
+      this.router.navigate(["gameplay", this.sessionId(), "image", id]);
     }
   }
 }
