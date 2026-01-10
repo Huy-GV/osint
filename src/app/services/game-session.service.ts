@@ -104,6 +104,8 @@ export class GameSessionService {
   async endSession(sessionId: string) {
     const docRef = doc(this.firestore, `sessions/${sessionId}`);
     await updateDoc(docRef, { endedAt: serverTimestamp() });
+    localStorage.removeItem(GameSessionService.STORAGE_KEY);
+    this.cachedSessionResource.reload();
   }
 
   async getCurrentSessionProgress(sessionId: string) {
