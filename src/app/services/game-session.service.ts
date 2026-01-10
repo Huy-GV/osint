@@ -5,7 +5,8 @@ import { ImageService } from './image.service';
 import { GameSession } from '../models/game-session';
 import { Guess } from '../models/guess';
 import { Firestore } from '@angular/fire/firestore';
-import { addDoc, collection, doc, getCountFromServer, getDoc, getDocs, query, serverTimestamp, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection, doc, getCountFromServer, getDoc, getDocs, query, serverTimestamp, Timestamp, updateDoc, where } from 'firebase/firestore';
+import { getCount } from 'firebase/firestore/lite';
 
 @Injectable({
   providedIn: 'root',
@@ -44,18 +45,23 @@ export class GameSessionService {
       throw new Error('Image not found');
     }
 
+    const session = await this.getCurrentSession();
+    if (!session) {
+      throw new Error('Session not found');
+    }
+
+    const existingGuess = await this.findGuess({ imageId, sessionId: session.id });
+    if (existingGuess) {
+      throw new Error("Image already contains guess");
+    }
+
     const distance = this.mapService.calculateDistanceMeters(
       { latitude, longitude },
       { latitude: image.latitude, longitude: image.longitude }
     );
 
     const score = this.scoreService.calculateScore(distance);
-    const session = await this.getCurrentSession();
-    if (!session) {
-      throw new Error('Session not found');
-    }
-
-    const guess: Omit<Guess, "id"> = {
+    const guess = {
       imageId,
       sessionId: session.id,
       longitude,
@@ -64,7 +70,7 @@ export class GameSessionService {
       imageLatitude: image.latitude,
       score,
       distanceMeters: distance,
-      createdAt: new Date(),
+      createdAt: serverTimestamp(),
     };
 
     const guessCollection = this.getGuessCollection(session.id);
@@ -119,7 +125,7 @@ export class GameSessionService {
     }
 
     const guessQuery = query(this.getGuessCollection(session.id));
-    const guessDocCount = await getCountFromServer(guessQuery);
+    const guessDocCount = await getCount(guessQuery);
 
     return {
       sessionId: session.id,
@@ -128,14 +134,14 @@ export class GameSessionService {
     };
   }
 
-  async findGuess({ imageId }: { imageId: string }) {
-    const session = await this.getCurrentSession();
-    if (!session) {
+  async findGuess({ imageId, sessionId }: { imageId: string; sessionId?: string; }) {
+    const guessSessionId = sessionId ?? (await this.getCurrentSession())?.id;
+    if (!guessSessionId) {
       return undefined;
     }
 
     const guessQuery = query(
-      this.getGuessCollection(session.id),
+      this.getGuessCollection(guessSessionId),
       where("imageId", "==", imageId),
     );
 
