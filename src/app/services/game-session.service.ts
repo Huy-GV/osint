@@ -36,10 +36,10 @@ export class GameSessionService {
 
       try {
         const session = await this.getSessionSummary(cachedId);
-        return session || null;
+        return session;
       } catch {
         localStorage.removeItem(GameSessionService.STORAGE_KEY);
-        return null;
+        return undefined;
       }
     }
   });
@@ -183,6 +183,7 @@ export class GameSessionService {
     const session = sessionDoc.data() as GameSession;
 
     return {
+      sessionId,
       guesses,
       meta: {
         gameStartedAt: session.startedAt.toDate(),

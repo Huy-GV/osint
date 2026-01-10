@@ -25,6 +25,10 @@ export class GuessImagePage {
     this.activatedRoute.params.pipe(map(p => p['id'] as string))
   );
 
+  private readonly sessionId = toSignal(
+    this.activatedRoute.params.pipe(map(p => p['sessionId'] as string))
+  );
+
   readonly image = this.imageService.getImageResource(this.imageId);
   readonly answer = this.gameService.getGuessResource(this.imageId);
   readonly sessionProgress = this.gameService.getSessionProgressResource(this.imageId);

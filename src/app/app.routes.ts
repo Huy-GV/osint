@@ -11,15 +11,15 @@ export const routes: Routes = [
     },
     {
         component: GameplayPage,
-        path: "gameplay"
+        path: "gameplay/:sessionId"
     },
     {
         component: GuessImagePage,
-        path: "gameplay/image/:id"
+        path: "gameplay/:sessionId/image/:id"
     },
     {
         component: Summary,
-        path: "gameplay/summary/:id"
+        path: "gameplay/:sessionId/summary"
     },
     {
         redirectTo: "home",

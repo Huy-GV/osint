@@ -10,10 +10,10 @@
                 NEW GAME
             </button>
         } @else {
-            <a routerLink="/gameplay"
+            <button (click)="resumeSession()"
                 class="p-4 bg-purple-600 hover:bg-purple-800 text-white rounded-xl min-w-40 text-center font-bold transition-all duration-300 active:scale-95 shadow-lg">
                 CONTINUE
-            </a>
+            </button>
         }
     </div>
 
