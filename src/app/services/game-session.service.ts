@@ -142,6 +142,11 @@ export class GameSessionService {
     } as unknown as Guess;
   }
 
+  async sessionExists(sessionId: string) {
+    const sessionDoc = await getDoc(doc(this.firestore, `sessions/${sessionId}`));
+    return sessionDoc.exists();
+  }
+
   async getSessionSummary(sessionId: string) {
     const sessionDoc = await getDoc(doc(this.firestore, `sessions/${sessionId}`));
     if (!sessionDoc.exists()) {

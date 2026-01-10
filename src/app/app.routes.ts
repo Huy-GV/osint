@@ -4,6 +4,7 @@ import { GameplayPage } from './pages/gameplay-page/gameplay-page';
 import { GuessImagePage } from './pages/guess-image/guess-image';
 import { Summary } from './pages/summary/summary';
 import { NotFoundPage } from './pages/not-found/not-found';
+import { sessionGuard } from './guards/session-guard';
 
 export const routes: Routes = [
     {
@@ -12,15 +13,18 @@ export const routes: Routes = [
     },
     {
         component: GameplayPage,
-        path: "gameplay/:sessionId"
+        path: "gameplay/:sessionId",
+        canActivate: [sessionGuard],
     },
     {
         component: GuessImagePage,
-        path: "gameplay/:sessionId/image/:id"
+        path: "gameplay/:sessionId/image/:id",
+        canActivate: [sessionGuard],
     },
     {
         component: Summary,
-        path: "gameplay/:sessionId/summary"
+        path: "gameplay/:sessionId/summary",
+        canActivate: [sessionGuard],
     },
     {
         redirectTo: "home",

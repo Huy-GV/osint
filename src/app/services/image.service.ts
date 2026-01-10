@@ -1,7 +1,5 @@
-import { inject, Injectable, resource, Signal } from '@angular/core';
+import { Injectable, resource, Signal } from '@angular/core';
 import { AnonymousImage, Image } from '../models/image';
-import { MapService } from './map.service';
-import { ScoreService } from './score.service';
 
 @Injectable({
   providedIn: 'root',
