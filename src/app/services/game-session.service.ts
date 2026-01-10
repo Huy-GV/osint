@@ -11,6 +11,7 @@ import { addDoc, collection, doc, getCountFromServer, getDoc, getDocs, query, se
   providedIn: 'root',
 })
 export class GameSessionService {
+  private static STORAGE_KEY = "osint-session";
   private readonly imageService = inject(ImageService);
   private readonly mapService = inject(MapService);
   private readonly scoreService = inject(ScoreService);
@@ -24,6 +25,23 @@ export class GameSessionService {
 
   readonly currentSessionResource = resource({
     loader: () => this.getCurrentSession(),
+  });
+
+  readonly cachedSessionResource = resource({
+    loader: async () => {
+      const cachedId = localStorage.getItem(GameSessionService.STORAGE_KEY);
+      if (!cachedId) {
+        return undefined;
+      }
+
+      try {
+        const session = await this.getSessionSummary(cachedId);
+        return session || null;
+      } catch {
+        localStorage.removeItem(GameSessionService.STORAGE_KEY);
+        return null;
+      }
+    }
   });
 
   async confirmGuess({
@@ -98,6 +116,7 @@ export class GameSessionService {
     }
 
     const session = await addDoc(this.sessionCollection, newSession);
+    localStorage.setItem(GameSessionService.STORAGE_KEY, session.id);
     return {
       ...newSession,
       id: session.id,

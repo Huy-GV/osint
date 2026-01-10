@@ -12,7 +12,8 @@ export class HomePage {
   private readonly gameService = inject(GameSessionService);
   private readonly router = inject(Router);
 
-  readonly currentSession = this.gameService.currentSessionResource;
+  readonly cachedSession = this.gameService.cachedSessionResource;
+
   readonly activeTooltip = signal<string | null>(null);
   readonly helpContent: Record<string, { title: string, detail: string }> = {
     INSPECT: {
