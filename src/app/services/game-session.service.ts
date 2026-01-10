@@ -5,7 +5,7 @@ import { ImageService } from './image.service';
 import { GameSession } from '../models/game-session';
 import { Guess } from '../models/guess';
 import { Firestore } from '@angular/fire/firestore';
-import { addDoc, collection, doc, getCountFromServer, getDoc, getDocs, query, serverTimestamp, Timestamp, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection, doc, getCountFromServer, getDoc, getDocs, query, serverTimestamp, updateDoc, where } from 'firebase/firestore';
 
 @Injectable({
   providedIn: 'root',
