@@ -6,7 +6,6 @@ import { GameSession } from '../models/game-session';
 import { Guess } from '../models/guess';
 import { Firestore } from '@angular/fire/firestore';
 import { addDoc, collection, doc, getCountFromServer, getDoc, getDocs, query, serverTimestamp, Timestamp, updateDoc, where } from 'firebase/firestore';
-import { getCount } from 'firebase/firestore/lite';
 
 @Injectable({
   providedIn: 'root',
@@ -22,10 +21,6 @@ export class GameSessionService {
   private getGuessCollection(sessionId: string) {
     return collection(this.firestore, `sessions/${sessionId}/guesses`);
   }
-
-  readonly sessionProgress = resource({
-    loader: () => this.getCurrentSessionProgress(),
-  });
 
   readonly currentSessionResource = resource({
     loader: () => this.getCurrentSession(),
@@ -125,7 +120,7 @@ export class GameSessionService {
     }
 
     const guessQuery = query(this.getGuessCollection(session.id));
-    const guessDocCount = await getCount(guessQuery);
+    const guessDocCount = await getCountFromServer(guessQuery);
 
     return {
       sessionId: session.id,
@@ -188,6 +183,15 @@ export class GameSessionService {
       params: () => ({ id: id() }),
       loader: ({ params: { id } }) => {
         return id ? this.findGuess({ imageId: id! }) : Promise.resolve(undefined);
+      }
+    });
+  }
+
+  getSessionProgressResource(imageId: Signal<string | undefined>) {
+    return resource({
+      params: () => ({ imageId: imageId() }),
+      loader: ({ params: { imageId }}) => {
+        return imageId ? this.getCurrentSessionProgress() : Promise.resolve(undefined);
       }
     });
   }
