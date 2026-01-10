@@ -7,8 +7,28 @@
                 <img
                     [src]="image.value().url"
                     [alt]="'Image ' + image.value().id"
-                    class="max-w-full max-h-full object-contain shadow-lg"
+                    (click)="openFullScreen()"
+                    class="max-w-full max-h-full object-contain shadow-lg cursor-pointer"
                 />
+
+                <dialog #fullScreenDialog class="bg-black w-screen h-screen max-w-none max-h-none m-0 p-0 overflow-auto scroll-smooth">
+                    <button (click)="closeFullScreen()"
+                        class="fixed top-6 right-6 z-50 bg-black/50 text-white border rounded flex items-center justify-center text-xl hover:bg-white hover:text-black transition-all p-2 cursor-pointer">
+                        Close
+                    </button>
+
+                    <div class="flex items-center justify-center min-w-full min-h-full p-4">
+                        <img
+                            [src]="image.value().url"
+                            [alt]="'Image ' + image.value().id"
+                            (click)="toggleZoom()"
+                            class="transition-all duration-200 ease-in-out object-contain cursor-pointer"
+                            [class.w-[300%]]="isZoomed()"
+                            [class.max-w-full]="!isZoomed()"
+                            [class.max-h-screen]="!isZoomed()"
+                        />
+                    </div>
+                </dialog>
             }
         }
         @else {

@@ -1,4 +1,4 @@
-import { Component, computed, inject, resource } from '@angular/core';
+import { Component, computed, ElementRef, inject, Renderer2, resource, signal, viewChild } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { ImageService } from '../../services/image.service';
@@ -23,6 +23,7 @@ export class GuessImagePage {
   private readonly router = inject(Router);
   private readonly mapService = inject(MapService);
   private readonly draftService = inject(DraftGuessService);
+  private renderer = inject(Renderer2);
 
   private readonly imageId = toSignal(
     this.activatedRoute.params.pipe(map(p => p['id'] as string))
@@ -79,6 +80,9 @@ export class GuessImagePage {
     latitude: new FormControl<number | null>(null, [Validators.required, Validators.min(-90), Validators.max(90)]),
     longitude: new FormControl<number | null>(null, [Validators.required, Validators.min(-180), Validators.max(180)]),
   });
+
+  readonly imageDialog = viewChild<ElementRef<HTMLDialogElement>>("fullScreenDialog");
+  readonly isZoomed = signal(false);
 
   async submitGuess() {
     if (this.form.valid) {
@@ -144,5 +148,20 @@ export class GuessImagePage {
       this.draftGuesses.reload();
       this.form.reset();
     }
+  }
+
+  toggleZoom() {
+    this.isZoomed.update(zoomed => !zoomed);
+  }
+
+  openFullScreen() {
+    this.imageDialog()?.nativeElement.showModal();
+    this.renderer.addClass(document.body, 'overflow-hidden');
+  }
+
+  closeFullScreen() {
+    this.isZoomed.set(false);
+    this.imageDialog()?.nativeElement.close();
+    this.renderer.removeClass(document.body, 'overflow-hidden');
   }
 }
