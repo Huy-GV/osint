@@ -39,7 +39,7 @@ export class GuessImagePage {
 
   readonly mapOptions: google.maps.MapOptions = {
     minZoom: 2,
-    maxZoom: 20,
+    maxZoom: 50,
     restriction: {
       latLngBounds: {
         north: 89,
@@ -49,6 +49,7 @@ export class GuessImagePage {
       },
       strictBounds: true,
     },
+    fullscreenControl: true,
     disableDefaultUI: true,
   };
 
@@ -86,7 +87,6 @@ export class GuessImagePage {
       await this.gameService.confirmGuess({ imageId: this.imageId()!, longitude, latitude, sessionId: this.sessionId()! });
       this.answer.reload();
       this.sessionProgress.reload();
-      this.form.disable();
     }
   }
 
