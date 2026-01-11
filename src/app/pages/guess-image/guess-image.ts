@@ -38,6 +38,7 @@ export class GuessImagePage {
   readonly draftGuesses = this.draftService.getDraftResource(this.imageId, this.sessionId);
 
   readonly mapOptions: google.maps.MapOptions = {
+    mapId: "1d003da39cfe4e7de50ae138",
     minZoom: 2,
     maxZoom: 50,
     restriction: {

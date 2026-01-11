@@ -38,17 +38,25 @@
                 [options]="mapOptions"
                 (mapInitialized)="onMapReady($event)">
 
-                <map-marker
+                <map-advanced-marker
                     [position]="{ lat: displayMarkers().imageLatitude, lng: displayMarkers().imageLongitude }"
-                    [options]="{ draggable: false, title: 'Actual Location' }"
-                    [label]="{ text: 'A', color: 'white', fontWeight: 'bold' }"
-                ></map-marker>
+                    [title]="'Actual Location'"
+                    [content]="actualMarkerContent">
+                </map-advanced-marker>
+                <div #actualMarkerContent
+                    class="flex  h-7.5 w-7.5 items-center justify-center rounded-full border-2 border-white bg-purple-600 text-sm font-bold text-white">
+                    A
+                </div>
 
-                <map-marker
+                <map-advanced-marker
                     [position]="{ lat: displayMarkers().guessLatitude, lng: displayMarkers().guessLongitude }"
-                    [options]="{ draggable: false, title: 'Your Guess' }"
-                    [label]="{ text: 'G', color: 'white', fontWeight: 'bold' }"
-                ></map-marker>
+                    [title]="'Actual Location'"
+                    [content]="guessMarkerContent">
+                </map-advanced-marker>
+                <div #guessMarkerContent
+                    class="flex h-7.5 w-7.5 items-center justify-center rounded-full border-2 border-white bg-red-600 text-sm font-bold text-white">
+                    G
+                </div>
 
                 <map-polyline
                     [path]="[
