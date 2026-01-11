@@ -3,6 +3,5 @@ export interface DraftGuess {
         id: string;
         longitude: number;
         latitude: number;
-        createdAt: Date;
     }[];
 }

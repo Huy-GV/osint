@@ -25,7 +25,7 @@ export class HomePage {
     },
     EXTRACT: {
       title: 'Score',
-      detail: 'Perfect (0m): 15pt | <10m: 9pt | <30m: 6pt | <50m: 0pt'
+      detail: 'Perfect (0m): 15pt | <10m: 9pt | <20m: 6pt | <30m: 3pt | <40m: 1pt | <50m: 0pt'
     }
   };
 

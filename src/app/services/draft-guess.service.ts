@@ -40,9 +40,12 @@ export class DraftGuessService {
       id: crypto.randomUUID(),
       longitude: guessLongitude,
       latitude: guessLatitude,
-      createdAt: new Date(),
     };
     if (sessionDraft[imageId]) {
+      if (sessionDraft[imageId].some(({ latitude, longitude }) => latitude === guessLatitude && longitude === guessLongitude)) {
+        return;
+      }
+
       sessionDraft[imageId] = sessionDraft[imageId].length >= 3
         ? sessionDraft[imageId].concat(newDraftGuess).slice(1)
         : sessionDraft[imageId].concat(newDraftGuess)
@@ -64,10 +67,10 @@ export class DraftGuessService {
 
   getDraftResource(imageId: Signal<string | undefined>, sessionId: Signal<string | undefined>) {
     return resource({
-    params: () => ({ imageId: imageId(), sessionId: sessionId() }),
-    loader: ({ params: { imageId, sessionId } }) => {
-      return Promise.resolve(imageId && sessionId ? this.getDraftGuesses(imageId, sessionId) : []);
-    }
-  });
+      params: () => ({ imageId: imageId(), sessionId: sessionId() }),
+      loader: ({ params: { imageId, sessionId } }) => {
+        return Promise.resolve(imageId && sessionId ? this.getDraftGuesses(imageId, sessionId) : []);
+      }
+    });
   }
 }

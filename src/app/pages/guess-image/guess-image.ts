@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, inject, Renderer2, resource, signal, viewChild } from '@angular/core';
+import { Component, computed, ElementRef, inject, Renderer2, signal, viewChild } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { ImageService } from '../../services/image.service';
@@ -8,7 +8,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { MapService } from '../../services/map.service';
 import { DraftGuessService } from '../../services/draft-guess.service';
-import { DraftGuess } from '../../models/draft-guess';
 
 @Component({
   selector: 'app-guess-image',
@@ -83,15 +82,31 @@ export class GuessImagePage {
 
   readonly imageDialog = viewChild<ElementRef<HTMLDialogElement>>("fullScreenDialog");
   readonly isZoomed = signal(false);
+  readonly selectedDraftId = signal<string>("")
+
+  constructor() {
+    this.form.valueChanges.subscribe(value => {
+      if (value.latitude === null || value.longitude === null) {
+        return;
+      }
+
+      const matchingDraft = this.draftGuesses.value()?.find(
+        ({ longitude, latitude }) => longitude === value.longitude && latitude === value.latitude
+      );
+      this.selectedDraftId.set(matchingDraft?.id ?? "");
+    })
+  }
 
   async submitGuess() {
-    if (this.form.valid) {
-      const latitude = this.form.get('latitude')!.value!;
-      const longitude = this.form.get('longitude')!.value!;
-      await this.gameService.confirmGuess({ imageId: this.imageId()!, longitude, latitude, sessionId: this.sessionId()! });
-      this.answer.reload();
-      this.sessionProgress.reload();
+    if (!this.form.valid) {
+      return;
     }
+
+    const latitude = this.form.get('latitude')!.value!;
+    const longitude = this.form.get('longitude')!.value!;
+    await this.gameService.confirmGuess({ imageId: this.imageId()!, longitude, latitude, sessionId: this.sessionId()! });
+    this.answer.reload();
+    this.sessionProgress.reload();
   }
 
   async navigateToSummary() {
@@ -121,16 +136,20 @@ export class GuessImagePage {
   draftSelected(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
     const draftId = selectElement.value;
-
-    if (draftId) {
-      const selectedDraft = this.draftGuesses.value()?.find(draftGuess => draftGuess.id === draftId);
-      if (selectedDraft) {
-        this.form.patchValue({
-          latitude: selectedDraft.latitude,
-          longitude: selectedDraft.longitude,
-        });
-      }
+    if (!draftId) {
+      return;
     }
+
+    this.selectedDraftId.set(draftId);
+    const selectedDraft = this.draftGuesses.value()?.find(draftGuess => draftGuess.id === draftId);
+    if (!selectedDraft) {
+      return;
+    }
+
+    this.form.patchValue({
+      latitude: selectedDraft.latitude,
+      longitude: selectedDraft.longitude,
+    });
   }
 
   draftSaved() {

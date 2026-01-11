@@ -1,5 +1,5 @@
 <main class="lg:w-screen lg:h-screen flex flex-col lg:flex-row items-center p-4 lg:px-5 lg:py-10 gap-4">
-    <div class="w-full lg:w-8/12 h-[100vh] lg:h-full flex items-center justify-center overflow-hidden">
+    <div class="w-full lg:w-8/12 h-screen lg:h-full flex items-center justify-center overflow-hidden">
         @if (!answer.hasValue()) {
             @if (image.isLoading()) {
                 <p>Loading images...</p>
@@ -72,22 +72,23 @@
             <p class="text-sm text-gray-500 mb-6">Enter coordinates found in the image</p>
 
             @if (draftGuesses.hasValue() && draftGuesses.value().length > 0) {
-            <div class="mb-4 p-3 bg-purple-50 rounded-xl border border-purple-100">
-                <label class="text-[10px] font-black uppercase text-purple-400 mb-1 block">
-                    Resume a Previous Draft
-                </label>
-                <select
-                (change)="draftSelected($event)"
-                class="w-full p-2 bg-white border border-purple-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-purple-500"
-                >
-                <option value="">Select a saved location...</option>
-                @for (item of draftGuesses.value(); track item.id) {
-                    <option [value]="item.id">
-                    Draft {{ $index + 1 }} ({{ item.latitude.toFixed(4) }}, {{ item.longitude.toFixed(4) }})
-                    </option>
-                }
-                </select>
-            </div>
+                <div class="mb-4 p-3 bg-purple-50 rounded-xl border border-purple-100">
+                    <label class="text-[10px] font-black uppercase text-purple-400 mb-1 block">
+                        Apply a Previous Draft
+                    </label>
+                    <select
+                        [value]="selectedDraftId()"
+                        (change)="draftSelected($event)"
+                        class="w-full p-2 bg-white border border-purple-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                    <option value="">Select a saved location...</option>
+                    @for (item of draftGuesses.value(); track item.id) {
+                        <option [value]="item.id">
+                        Draft {{ $index + 1 }} ({{ item.latitude.toFixed(7) }}, {{ item.longitude.toFixed(7) }})
+                        </option>
+                    }
+                    </select>
+                </div>
             }
 
             <form class="flex flex-col gap-4" [formGroup]="form" (ngSubmit)="submitGuess()">
