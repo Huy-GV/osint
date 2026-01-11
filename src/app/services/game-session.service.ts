@@ -56,7 +56,16 @@ export class GameSessionService {
       throw new Error('Image not found');
     }
 
-    const existingGuess = await this.findGuess({ imageId, sessionId: sessionId });
+    const session = await this.findSession(sessionId);
+    if (!session) {
+      throw new Error('Session not found');
+    }
+
+    if (session.endedAt) {
+      throw new Error('Session has already ended');
+    }
+
+    const existingGuess = await this.findGuess({ imageId, sessionId });
     if (existingGuess) {
       throw new Error("Image already contains guess");
     }
@@ -121,10 +130,6 @@ export class GameSessionService {
   }
 
   async findGuess({ imageId, sessionId }: { imageId: string; sessionId: string; }) {
-    if (!sessionId) {
-      return undefined;
-    }
-
     const guessQuery = query(
       this.getGuessCollection(sessionId),
       where("imageId", "==", imageId),
@@ -142,21 +147,25 @@ export class GameSessionService {
     } as unknown as Guess;
   }
 
-  async sessionExists(sessionId: string) {
+  async findSession(sessionId: string) {
     const sessionDoc = await getDoc(doc(this.firestore, `sessions/${sessionId}`));
-    return sessionDoc.exists();
+    return sessionDoc.exists()
+      ? {
+        ...sessionDoc.data(),
+        id: sessionDoc.id,
+      } as unknown as GameSession
+      : undefined;
   }
 
   async getSessionSummary(sessionId: string) {
-    const sessionDoc = await getDoc(doc(this.firestore, `sessions/${sessionId}`));
-    if (!sessionDoc.exists()) {
-      return undefined;
+    const session = await this.findSession(sessionId);
+    if (!session) {
+      throw new Error("Session not found");
     }
 
-    const guessQuery = query(this.getGuessCollection(sessionDoc.id));
+    const guessQuery = query(this.getGuessCollection(session.id));
     const guessDocs = await getDocs(guessQuery);
     const guesses = guessDocs.docs.map(d => ({ ...d.data(), id: d.id, } as Guess));
-    const session = sessionDoc.data() as GameSession;
 
     return {
       sessionId,

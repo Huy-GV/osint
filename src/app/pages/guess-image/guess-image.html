@@ -135,13 +135,13 @@
                 <button
                     (click)="draftSaved()"
                     [disabled]="form.invalid || answer.hasValue()"
-                    class="mt-2 p-4 border-2 border-purple-600 text-purple-600 hover:bg-purple-50 disabled:border-gray-300 disabled:text-gray-400 disabled:bg-transparent font-bold rounded-xl shadow-sm transition-all active:scale-95">
+                    class="cursor-pointer mt-2 p-4 border-2 border-purple-600 text-purple-600 hover:bg-purple-50 disabled:border-gray-300 disabled:text-gray-400 disabled:bg-transparent font-bold rounded-xl shadow-sm transition-all active:scale-95">
                     Save Draft
                 </button>
                 <button
                     type="submit"
                     [disabled]="form.invalid || answer.hasValue()"
-                    class="mt-2 p-4 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 text-white font-bold rounded-xl shadow-lg transition-transform active:scale-95">
+                    class="cursor-pointer mt-2 p-4 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 text-white font-bold rounded-xl shadow-lg transition-transform active:scale-95">
                     Submit Guess
                 </button>
 
@@ -182,9 +182,9 @@
                 }
 
                 @if (image.hasValue()) {
-                    <div class="flex flex-row justify-around items-center">
-                        <button [disabled]="!image.value().prevId" (click)="onImageClicked(image.value().prevId)" class="border-purple-600 border-2 mt-2 p-4 text-purple-600 disabled:bg-gray-300 font-bold rounded-xl shadow-lg transition-transform active:scale-95">Previous</button>
-                        <button [disabled]="!image.value().nextId" (click)="onImageClicked(image.value().nextId)" class="border-purple-600 border-2 mt-2 p-4 text-purple-600 disabled:bg-gray-300 font-bold rounded-xl shadow-lg transition-transform active:scale-95">Next</button>
+                    <div class="flex flex-row justify-around items-center gap-5">
+                        <button [disabled]="!image.value().prevId" (click)="onImageClicked(image.value().prevId)" class="cursor-pointer flex-1 border-purple-600 border-2 mt-2 p-4 text-purple-600 disabled:bg-gray-300 font-bold rounded-xl shadow-lg transition-transform active:scale-95">Previous</button>
+                        <button [disabled]="!image.value().nextId" (click)="onImageClicked(image.value().nextId)" class="cursor-pointer flex-1 border-purple-600 border-2 mt-2 p-4 text-purple-600 disabled:bg-gray-300 font-bold rounded-xl shadow-lg transition-transform active:scale-95">Next</button>
                     </div>
                 }
 

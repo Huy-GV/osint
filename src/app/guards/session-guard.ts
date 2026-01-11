@@ -11,8 +11,8 @@ export const sessionGuard: CanActivateFn = async (route, state) => {
     return redirectNotFound();
   }
 
-  const exists = await gameSessionService.sessionExists(sessionId);
-  if (!exists) {
+  const existingSession = await gameSessionService.findSession(sessionId);
+  if (!existingSession) {
     return redirectNotFound();
   }
 
