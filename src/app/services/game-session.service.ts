@@ -88,7 +88,14 @@ export class GameSessionService {
   }
 
   async endSession(sessionId: string) {
-    await this.storeService.endSession(sessionId);
+    const summary = await this.storeService.getSessionSummary(sessionId);
+    if (!summary) {
+      throw new Error("Session summary not found");
+    }
+    if (!summary.session.endedAt) {
+      await this.storeService.endSession(sessionId);
+    }
+
     localStorage.removeItem(GameSessionService.STORAGE_KEY);
     this.cachedSessionResource.reload();
   }
