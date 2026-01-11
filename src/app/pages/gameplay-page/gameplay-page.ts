@@ -1,4 +1,4 @@
-import { Component, inject, resource } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ImageService } from '../../services/image.service';
 import { ActivatedRoute, Router } from "@angular/router";
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -17,11 +17,7 @@ export class GameplayPage {
     this.activatedRoute.params.pipe(map(p => p['sessionId'] as string))
   );
 
-  images = resource({
-    loader: () => {
-      return this.imageService.getAllImages();
-    }
-  });
+  readonly images = this.imageService.getAllImagesResource();
 
   startGame() {
     if (this.images.hasValue() && this.images.value()[0]) {

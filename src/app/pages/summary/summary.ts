@@ -1,4 +1,4 @@
-import { Component, inject, resource } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
 import { GameSessionService } from '../../services/game-session.service';
@@ -19,12 +19,7 @@ export class Summary {
     this.activatedRoute.params.pipe(map(p => p['sessionId'] as string))
   );
 
-  summary = resource({
-    params: () => ({ sessionId: this.sessionId()! }),
-    loader: ({ params: { sessionId } }) => {
-      return this.gameService.getSessionSummary(sessionId!);
-    }
-  });
+  readonly summary = this.gameService.getSessionSummaryResource(this.sessionId);
 
   async startNewGame() {
     await this.gameService.endSession(this.sessionId()!);

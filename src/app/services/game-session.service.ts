@@ -191,4 +191,13 @@ export class GameSessionService {
       }
     });
   }
+
+  getSessionSummaryResource(sessionId: Signal<string | undefined>) {
+    return resource({
+      params: () => ({ sessionId: sessionId() }),
+      loader: ({ params: { sessionId }}) => {
+        return sessionId ? this.getSessionSummary(sessionId) : Promise.resolve(undefined);
+      }
+    });
+  }
 }

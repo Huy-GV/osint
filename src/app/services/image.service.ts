@@ -76,4 +76,12 @@ export class ImageService {
       }
     });
   }
+
+  getAllImagesResource() {
+    return resource({
+      loader: () => {
+        return this.getAllImages();
+      }
+    })
+  }
 }
