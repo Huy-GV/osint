@@ -100,6 +100,12 @@ export class GuessImagePage {
     effect(() => {
       if (this.answer.isLoading() || this.answer.hasValue()) {
         this.form.disable({ emitEvent: false });
+        if (this.answer.hasValue()) {
+          this.form.patchValue({
+            latitude: this.answer.value().latitude,
+            longitude: this.answer.value().longitude,
+          });
+        }
       } else {
         this.form.enable({ emitEvent: false });
       }
