@@ -52,6 +52,7 @@ export class GuessImagePage {
     },
     fullscreenControl: true,
     disableDefaultUI: true,
+    clickableIcons: false,
   };
 
   readonly displayMarkers = computed(() => {

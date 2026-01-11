@@ -50,7 +50,7 @@
 
                 <map-advanced-marker
                     [position]="{ lat: displayMarkers().guessLatitude, lng: displayMarkers().guessLongitude }"
-                    [title]="'Actual Location'"
+                    [title]="'Your Guess'"
                     [content]="guessMarkerContent">
                 </map-advanced-marker>
                 <div #guessMarkerContent
@@ -161,29 +161,29 @@
                     @else if (answer.value()!.score > 0) {
                         <p class="font-black text-lg">Score: <span class="text-blue-600">{{ answer.value().score }}</span> out of <span class="text-purple-600">15</span></p>
                         <p class="font-black text-lg">
-                            You were within
-                            <span class="font-bold">
+                            You (<span class="font-black text-red-600">G</span>) were within
+                            <span class="font-black">
                                 @if (answer.value().distanceMeters > 1000) {
                                     {{ (answer.value().distanceMeters / 1000).toFixed(2) }} km
                                 } @else {
                                     {{ answer.value().distanceMeters.toFixed(0) }} m
                                 }
                             </span>
-                            of the destination!
+                            of the location (<span class="font-black text-purple-600">A</span>)!
                         </p>
                     }
                     @else {
                         <p class="font-black text-lg">Score: <span class="text-red-600">{{ answer.value().score }}</span> out of <span class="text-purple-600">15</span></p>
                         <p class="font-black text-lg">
-                            You were
-                            <span class="font-bold">
+                            You (<span class="font-black text-red-600">G</span>) were
+                            <span class="font-black">
                                 @if (answer.value().distanceMeters > 1000) {
                                     {{ (answer.value().distanceMeters / 1000).toFixed(2) }} km
                                 } @else {
                                     {{ answer.value().distanceMeters.toFixed(0) }} m
                                 }
                             </span>
-                            away from the destination!
+                            away from the location (<span class="font-black text-purple-600">A</span>)!
                         </p>
                     }
 

@@ -109,7 +109,9 @@ export class StoreService {
 
     const guessQuery = query(this.getGuessCollection(session.id));
     const guessDocs = await getDocs(guessQuery);
-    const guesses = guessDocs.docs.map(d => ({ ...d.data(), id: d.id, } as Guess));
+    const guesses = guessDocs.docs
+      .map(d => ({ ...d.data(), id: d.id, } as Guess))
+      .sort((a, b) => a.createdAt.toDate().getTime() - b.createdAt.toDate().getTime());;
 
     return {
       session,
