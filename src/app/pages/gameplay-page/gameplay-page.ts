@@ -23,7 +23,9 @@ export class GameplayPage {
     }
   });
 
-  openImage(imageId: string) {
-    this.router.navigate(["gameplay", this.sessionId(), "image", imageId])
+  startGame() {
+    if (this.images.hasValue() && this.images.value()[0]) {
+      this.router.navigate(["gameplay", this.sessionId(), "image", this.images.value()[0].id])
+    }
   }
 }

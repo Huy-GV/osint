@@ -30,4 +30,8 @@ export class Summary {
     await this.gameService.endSession(this.sessionId()!);
     this.router.navigate(["home"]);
   }
+
+  answerSelected(imageId: string) {
+    this.router.navigate(["gameplay", this.sessionId(), "image", imageId]);
+  }
 }

@@ -1,4 +1,4 @@
-<main class="min-h-screen bg-gray-50 px-6 py-12">
+<main class="min-h-screen bg-gray-50 px-6 py-12 flex flex-col items-center">
     <div class="max-w-6xl mx-auto mb-12 flex flex-col items-center">
         <h1 class="text-4xl font-black text-gray-900 tracking-tight text-center">
             Choose Your <span class="text-purple-600">Challenge</span>
@@ -11,12 +11,12 @@
             <p>Loading images...</p>
         } @else {
             @for (image of images.value(); track image.id) {
-                <div (click)="openImage(image.id)" class="group relative w-64 h-64 bg-white rounded-3xl p-3 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100">
+                <div class="relative w-64 h-64 bg-white rounded-3xl p-3 shadow-sm transition-all duration-300 border border-gray-100">
                     <div class="w-full h-full overflow-hidden rounded-2xl bg-gray-200">
                         <img
                             [src]="image.url"
                             [alt]="'Image ' + image.id"
-                            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            class="w-full h-full object-cover transition-transform duration-500"
                         />
                     </div>
                 </div>
@@ -28,4 +28,8 @@
     <p class="mt-10 text-lg font-black text-gray-800 tracking-tight text-center">
         Pick an image and guess where they are
     </p>
+    <button (click)="startGame()"
+        class="cursor-pointer p-4 my-5 bg-purple-600 hover:bg-purple-800 text-white rounded-xl min-w-40 text-center font-bold transition-all duration-300 active:scale-95 shadow-lg">
+        BEGIN
+    </button>
 </main>
