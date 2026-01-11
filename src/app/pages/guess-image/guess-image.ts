@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, inject, Renderer2, signal, viewChild } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, Renderer2, signal, viewChild } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { ImageService } from '../../services/image.service';
@@ -94,7 +94,15 @@ export class GuessImagePage {
         ({ longitude, latitude }) => longitude === value.longitude && latitude === value.latitude
       );
       this.selectedDraftId.set(matchingDraft?.id ?? "");
-    })
+    });
+
+    effect(() => {
+      if (this.answer.isLoading() || this.answer.hasValue()) {
+        this.form.disable({ emitEvent: false });
+      } else {
+        this.form.enable({ emitEvent: false });
+      }
+    });
   }
 
   async submitGuess() {

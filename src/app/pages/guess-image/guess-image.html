@@ -71,7 +71,7 @@
             <h2 class="text-2xl font-black text-gray-800 mb-1">Make Your Guess</h2>
             <p class="text-sm text-gray-500 mb-6">Enter coordinates found in the image</p>
 
-            @if (draftGuesses.hasValue() && draftGuesses.value().length > 0) {
+            @if (!answer.hasValue() && draftGuesses.hasValue() && draftGuesses.value().length > 0) {
                 <div class="mb-4 p-3 bg-purple-50 rounded-xl border border-purple-100">
                     <label class="text-[10px] font-black uppercase text-purple-400 mb-1 block">
                         Apply a Previous Draft
@@ -84,7 +84,7 @@
                     <option value="">Select a saved location...</option>
                     @for (item of draftGuesses.value(); track item.id) {
                         <option [value]="item.id">
-                        Draft {{ $index + 1 }} ({{ item.latitude.toFixed(7) }}, {{ item.longitude.toFixed(7) }})
+                            Draft {{ $index + 1 }} ({{ item.latitude.toFixed(7) }}, {{ item.longitude.toFixed(7) }})
                         </option>
                     }
                     </select>
