@@ -124,7 +124,7 @@ export class GameSessionService {
       guesses,
       meta: {
         gameStartedAt: session.startedAt.toDate(),
-        gameEndAt: session.endedAt?.toDate(),
+        gameEndedAt: session.endedAt?.toDate(),
         totalScore: guesses
           .map(g => g.score)
           .reduce((sum, score) => sum + score, 0),

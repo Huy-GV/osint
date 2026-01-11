@@ -126,6 +126,7 @@ export class GuessImagePage {
 
   async navigateToSummary() {
     if (this.canNavigateToSummary()) {
+      await this.gameService.endSession(this.sessionId()!);
       this.router.navigate(["gameplay", this.sessionId(), "summary"]);
     }
   }

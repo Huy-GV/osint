@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { GameSessionService } from '../../services/game-session.service';
+import { ImageService } from '../../services/image.service';
 
 @Component({
   selector: 'app-home-page',
@@ -10,8 +11,10 @@ import { GameSessionService } from '../../services/game-session.service';
 export class HomePage {
   private readonly gameService = inject(GameSessionService);
   private readonly router = inject(Router);
+  private readonly imageService = inject(ImageService);
 
   readonly cachedSession = this.gameService.cachedSessionResource;
+  readonly images = this.imageService.getAllImagesResource();
 
   readonly activeTooltip = signal<string | null>(null);
   readonly helpContent: Record<string, { title: string, detail: string }> = {
@@ -31,12 +34,14 @@ export class HomePage {
 
   async startNewSession() {
     const { id } = await this.gameService.startNewSession();
-    this.router.navigate(["gameplay", id]);
+    if (this.images.hasValue()) {
+      this.router.navigate(["gameplay", id, "image", this.images.value()[0].id])
+    }
   }
 
   async resumeSession() {
-    if (this.cachedSession.hasValue()) {
-      this.router.navigate(["gameplay", this.cachedSession.value().sessionId]);
+    if (this.cachedSession.hasValue() && this.images.hasValue()) {
+      this.router.navigate(["gameplay", this.cachedSession.value().sessionId, "image", this.images.value()[0].id]);
     }
   }
 }
